@@ -127,6 +127,8 @@ hang(-visW*0.3,hh*0.99,-2,2.2,banana);hang(visW*0.22,hh*0.99,-2,1.6,mango);hang(
 pineapple(-visW*0.32,-hh*0.93,-1);papaya(visW*0.12,-hh*0.92,-1);mango(visW*0.38,-hh*0.9,-1);banana(-visW*0.1,-hh*0.78,-3);berries(-hw*0.98,hh*0.15,-2);mango(hw*0.97,-hh*0.2,-2);
 
 /* животные на деревьях (приглушённые, не бросаются в глаза) */
+var lastG=null,pets={};
+function reg(id,g){var h=new T.Sprite(new T.SpriteMaterial({map:mistTex,color:0xffe27a,transparent:true,opacity:0,blending:T.AdditiveBlending,depthWrite:false,fog:false}));h.scale.set(6,6,1);h.position.set(0,0,-0.6);g.add(h);pets[id]={g:g,y0:g.position.y,h:h,on:false,pulse:0,op:0};}
 function part(g,mt,sx,sy,sz,x,y,z){var m=new T.Mesh(sph,mt);m.scale.set(sx,sy,sz);m.position.set(x,y,z);g.add(m);return m;}
 function monkey(x,y,z,s){var g=new T.Group(),br=std(0x6b4a2e,0.9),tan=std(0xc9a67a,0.9),dk=std(0x1a1210,0.5);
  part(g,br,0.9,1.15,0.8,0,0,0);part(g,tan,0.6,0.8,0.4,0.05,-0.1,0.5);
@@ -137,32 +139,32 @@ function monkey(x,y,z,s){var g=new T.Group(),br=std(0x6b4a2e,0.9),tan=std(0xc9a6
  part(g,br,0.35,0.4,0.8,-0.55,-1.05,0.55);part(g,br,0.35,0.4,0.8,0.55,-1.05,0.55);
  var tail=new T.Group();tail.position.set(0,-0.9,-0.6);g.add(tail);
  tail.add(new T.Mesh(new T.TubeGeometry(new T.CatmullRomCurve3([new T.Vector3(0,0,0),new T.Vector3(0,-0.9,-0.6),new T.Vector3(0,-1.5,-0.1),new T.Vector3(0,-1.3,0.6)]),20,0.13,6,false),br));
- g.position.set(x,y,z);g.scale.setScalar(s);scene.add(g);
+ g.position.set(x,y,z);g.scale.setScalar(s);scene.add(g);lastG=g;
  anim.push(function(t){head.rotation.y=Math.sin(t*0.5)*0.5;head.rotation.z=Math.sin(t*0.7)*0.08;tail.rotation.x=Math.sin(t*1.2)*0.25;});}
 function sloth(x,y,z,s){var g=new T.Group(),fur=std(0x7a6a52,0.95),pale=std(0xc8b896,0.9),dk=std(0x2a1f18,0.6);
  part(g,fur,1.4,0.7,0.7,0,-1.2,0);
  var head=new T.Group();head.position.set(1.3,-1.45,0);g.add(head);
  part(head,pale,0.55,0.5,0.5,0,0,0);part(head,dk,0.5,0.14,0.1,0,0.05,0.42);part(head,dk,0.07,0.07,0.06,-0.2,0.05,0.5);part(head,dk,0.07,0.07,0.06,0.2,0.05,0.5);
  [[-0.6,0.3],[0.6,0.3],[-0.7,-0.3],[0.6,-0.3]].forEach(function(p){var a=new T.Mesh(new T.CylinderGeometry(0.1,0.12,1.3,6),fur);a.position.set(p[0],-0.55,p[1]);a.rotation.z=p[0]*0.08;g.add(a);});
- g.position.set(x,y,z);g.scale.setScalar(s);scene.add(g);
+ g.position.set(x,y,z);g.scale.setScalar(s);scene.add(g);lastG=g;
  anim.push(function(t){g.rotation.z=Math.sin(t*0.5)*0.04;head.rotation.y=Math.sin(t*0.4)*0.4;});}
 function snake(x,y,z,s){var g=new T.Group(),pts=[],j;
  for(j=0;j<=14;j++)pts.push(new T.Vector3(j*0.4-2.8,Math.sin(j*0.9)*0.35+0.3,Math.cos(j*0.7)*0.25));
  g.add(new T.Mesh(new T.TubeGeometry(new T.CatmullRomCurve3(pts),60,0.17,8,false),std(0x5a9a3a,0.6)));
  var head=part(g,std(0x4f8a32,0.6),0.34,0.2,0.26,3.0,0.3,-0.2);
  part(g,std(0xF2C230,0.4),0.06,0.06,0.06,3.1,0.4,-0.05);part(g,std(0xF2C230,0.4),0.06,0.06,0.06,3.1,0.4,-0.35);
- g.position.set(x,y,z);g.scale.setScalar(s);scene.add(g);
+ g.position.set(x,y,z);g.scale.setScalar(s);scene.add(g);lastG=g;
  anim.push(function(t){g.rotation.z=Math.sin(t*0.8)*0.02;head.position.y=0.3+Math.sin(t*1.4)*0.08;});}
 function frog(x,y,z,s){var g=new T.Group(),gr=std(0x58a83a,0.5),dk=std(0x1a1a10,0.4);
  part(g,gr,0.8,0.5,1,0,0,0);part(g,std(0xe8e0a0,0.6),0.55,0.3,0.7,0,-0.15,0.1);
  [-0.4,0.4].forEach(function(ex){part(g,std(0xF2C230,0.3),0.22,0.22,0.22,ex,0.5,0.55);part(g,dk,0.1,0.1,0.1,ex,0.52,0.74);});
  [-0.7,0.7].forEach(function(lx){part(g,gr,0.3,0.25,0.7,lx,-0.15,-0.3);});
- g.position.set(x,y,z);g.scale.setScalar(s);scene.add(g);
+ g.position.set(x,y,z);g.scale.setScalar(s);scene.add(g);lastG=g;
  anim.push(function(t){g.scale.y=s*(1+0.04*Math.sin(t*2.5));});}
-monkey(-visW*0.3,hh*0.12+0.5+1.45,-11.8,1.0);
-sloth(visW*0.3,-hh*0.35-0.3,-13.8,0.9);
-snake(visW*0.2,hh*0.78+0.7,-23.5,1.3);
-frog(-visW*0.3,-hh*0.86,-3.5,0.8);
+monkey(-visW*0.3,hh*0.12+0.5+1.45,-11.8,1.0);reg('monkey',lastG);
+sloth(visW*0.3,-hh*0.35-0.3,-13.8,0.9);reg('sloth',lastG);
+snake(visW*0.2,hh*0.78+0.7,-23.5,1.3);reg('snake',lastG);
+frog(-visW*0.3,-hh*0.86,-3.5,0.8);reg('frog',lastG);
 
 /* бабочки */
 var bf=[];
@@ -172,13 +174,16 @@ for(i=0;i<3;i++){var gp=new T.Group(),wl,wr,tri=new T.Shape();tri.moveTo(0,0);tr
  gp.add(wl);gp.add(wr);gp.scale.setScalar(visW*0.03);gp.position.z=2.5;scene.add(gp);bf.push({g:gp,l:wl,r:wr,p:i*2.1});}
 
 var lastT=0;
-return {cluster:cluster,update:function(t){
+return {cluster:cluster,setHelper:function(id,on){if(pets[id])pets[id].on=on;},pulse:function(id){if(pets[id])pets[id].pulse=1;},update:function(t){
  var dt=Math.min(Math.max(t-lastT,0),0.1);lastT=t;
  sway.forEach(function(s){s.o.rotation.z=s.b+Math.sin(t*s.s+s.p)*s.a;});
  anim.forEach(function(f){f(t);});
+ for(var id in pets){var pt=pets[id],tg=pt.on?0.55+0.2*Math.sin(t*3):0;pt.op+=(tg-pt.op)*Math.min(1,dt*4);pt.h.material.opacity=pt.op;
+  if(pt.pulse>0){pt.pulse=Math.max(0,pt.pulse-dt*1.1);pt.g.position.y=pt.y0+Math.abs(Math.sin((1-pt.pulse)*Math.PI*3))*1.1*pt.pulse;pt.h.material.opacity=Math.min(1,pt.op+pt.pulse);}
+  else pt.g.position.y=pt.y0;}
  bf.forEach(function(b,k){var tt=t*0.5+b.p;b.g.position.x=Math.sin(tt*1.3)*hw*0.8;b.g.position.y=Math.sin(tt*0.9+k)*hh*0.75;b.g.rotation.z=Math.cos(tt*1.3)*0.5;var f=Math.sin(t*14+b.p);b.l.rotation.y=f;b.r.rotation.y=-f;});
  for(var j=0;j<DN;j++){dp[j*3+1]+=dt*0.4;dp[j*3]+=Math.sin(t+j)*dt*0.3;if(dp[j*3+1]>hh)dp[j*3+1]=-hh;}
  dg.attributes.position.needsUpdate=true;}};
 };
 })();
-                       
+ 
