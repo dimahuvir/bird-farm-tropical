@@ -1,6 +1,6 @@
 {
   "name": "bird-farm",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "scripts": {
     "prepare-web": "mkdir -p www/lib && cp node_modules/three/build/three.min.js www/lib/three.min.js"
@@ -10,5 +10,8 @@
     "@capacitor/cli": "^6.1.0",
     "@capacitor/core": "^6.1.0",
     "three": "0.128.0"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "^3.0.5"
   }
 }
