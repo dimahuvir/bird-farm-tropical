@@ -46,7 +46,7 @@ function trunk(x,z,r){var tr=new T.Mesh(new T.CylinderGeometry(r,r*1.25,visH*2.4
  scene.add(new T.Mesh(new T.TubeGeometry(new T.CatmullRomCurve3(pts),90,0.16,6,false),std(0x3a5a2a,0.8)));}
 function branch(x0,y,z,len,dir,r){var b=new T.Mesh(new T.CylinderGeometry(r*0.8,r,len,10),bm);b.rotation.z=Math.PI/2;b.position.set(x0+dir*len/2,y,z);scene.add(b);}
 trunk(-visW*0.5,-12,2.4);trunk(visW*0.52,-14,2.6);trunk(visW*0.06,-24,3.0);trunk(-visW*0.2,-30,2.8);
-branch(-visW*0.5,hh*0.12,-12,visW*0.3,1,0.5);branch(visW*0.52,-hh*0.35,-14,visW*0.32,-1,0.55);branch(visW*0.06,hh*0.78,-24,visW*0.3,1,0.6);
+
 
 /* листья с жилками и тенью */
 function leafTex(kind){var c=mkc(256,256),g=c.getContext('2d'),i,y;
@@ -126,11 +126,17 @@ function passion(x,y,z){ball(x,y,z,0.55,1,1,0x6a2a7a);ball(x+0.9,y-0.2,z,0.5,1,1
 hang(-visW*0.3,hh*0.99,-2,2.2,banana);hang(visW*0.22,hh*0.99,-2,1.6,mango);hang(visW*0.42,hh*0.97,-2,1.2,berries);hang(-visW*0.44,hh*0.99,-3,1.4,coconuts);hang(-visW*0.12,hh*0.99,-3,1.0,passion);
 pineapple(-visW*0.32,-hh*0.93,-1);papaya(visW*0.12,-hh*0.92,-1);mango(visW*0.38,-hh*0.9,-1);banana(-visW*0.1,-hh*0.78,-3);berries(-hw*0.98,hh*0.15,-2);mango(hw*0.97,-hh*0.2,-2);
 
-/* животные на деревьях (приглушённые, не бросаются в глаза) */
-var lastG=null,pets={};
-function reg(id,g){var h=new T.Sprite(new T.SpriteMaterial({map:mistTex,color:0xffe27a,transparent:true,opacity:0,blending:T.AdditiveBlending,depthWrite:false,fog:false}));h.scale.set(6,6,1);h.position.set(0,0,-0.6);g.add(h);pets[id]={g:g,y0:g.position.y,h:h,on:false,pulse:0,op:0};}
+/* помощники: крупные звери на бревне внизу; прыгают и ползут к яйцам */
+var sy=-hh+visH*0.06,logTop=sy+1.2;
+var log=new T.Mesh(new T.CylinderGeometry(1.2,1.4,visW*1.15,16),bm);log.rotation.z=Math.PI/2;log.position.set(0,sy,2);scene.add(log);
+for(i=0;i<9;i++){var ms=new T.Mesh(sph,std(0x3f8f3a,0.9));ms.scale.set(R(1.2,2.4),0.35,0.9);ms.position.set(R(-hw,hw),logTop-0.1,2.3);scene.add(ms);}
+var pets={};
 function part(g,mt,sx,sy,sz,x,y,z){var m=new T.Mesh(sph,mt);m.scale.set(sx,sy,sz);m.position.set(x,y,z);g.add(m);return m;}
-function monkey(x,y,z,s){var g=new T.Group(),br=std(0x6b4a2e,0.9),tan=std(0xc9a67a,0.9),dk=std(0x1a1210,0.5);
+function reg(id,g,home,s){
+ var h=new T.Sprite(new T.SpriteMaterial({map:mistTex,color:0xffe27a,transparent:true,opacity:0,blending:T.AdditiveBlending,depthWrite:false,fog:false}));
+ h.scale.set(4,4,1);h.position.set(0,0.5,-0.6);g.add(h);g.position.copy(home);g.scale.setScalar(s);scene.add(g);
+ pets[id]={g:g,home:home.clone(),h:h,on:false,pulse:0,op:0,act:null};}
+function monkey(){var g=new T.Group(),br=std(0x6b4a2e,0.9),tan=std(0xc9a67a,0.9),dk=std(0x1a1210,0.5);
  part(g,br,0.9,1.15,0.8,0,0,0);part(g,tan,0.6,0.8,0.4,0.05,-0.1,0.5);
  var head=new T.Group();head.position.set(0,1.5,0.1);g.add(head);
  part(head,br,0.75,0.7,0.7,0,0,0);part(head,tan,0.5,0.4,0.3,0,-0.12,0.55);part(head,br,0.22,0.22,0.12,-0.7,0.1,0);part(head,br,0.22,0.22,0.12,0.7,0.1,0);
@@ -139,32 +145,30 @@ function monkey(x,y,z,s){var g=new T.Group(),br=std(0x6b4a2e,0.9),tan=std(0xc9a6
  part(g,br,0.35,0.4,0.8,-0.55,-1.05,0.55);part(g,br,0.35,0.4,0.8,0.55,-1.05,0.55);
  var tail=new T.Group();tail.position.set(0,-0.9,-0.6);g.add(tail);
  tail.add(new T.Mesh(new T.TubeGeometry(new T.CatmullRomCurve3([new T.Vector3(0,0,0),new T.Vector3(0,-0.9,-0.6),new T.Vector3(0,-1.5,-0.1),new T.Vector3(0,-1.3,0.6)]),20,0.13,6,false),br));
- g.position.set(x,y,z);g.scale.setScalar(s);scene.add(g);lastG=g;
- anim.push(function(t){head.rotation.y=Math.sin(t*0.5)*0.5;head.rotation.z=Math.sin(t*0.7)*0.08;tail.rotation.x=Math.sin(t*1.2)*0.25;});}
-function sloth(x,y,z,s){var g=new T.Group(),fur=std(0x7a6a52,0.95),pale=std(0xc8b896,0.9),dk=std(0x2a1f18,0.6);
- part(g,fur,1.4,0.7,0.7,0,-1.2,0);
- var head=new T.Group();head.position.set(1.3,-1.45,0);g.add(head);
+ anim.push(function(t){head.rotation.y=Math.sin(t*0.5)*0.5;head.rotation.z=Math.sin(t*0.7)*0.08;tail.rotation.x=Math.sin(t*1.2)*0.25;});return g;}
+function sloth(){var g=new T.Group(),fur=std(0x7a6a52,0.95),pale=std(0xc8b896,0.9),dk=std(0x2a1f18,0.6);
+ part(g,fur,1.4,0.7,0.7,0,1.2,0);
+ var head=new T.Group();head.position.set(1.3,1.0,0);g.add(head);
  part(head,pale,0.55,0.5,0.5,0,0,0);part(head,dk,0.5,0.14,0.1,0,0.05,0.42);part(head,dk,0.07,0.07,0.06,-0.2,0.05,0.5);part(head,dk,0.07,0.07,0.06,0.2,0.05,0.5);
- [[-0.6,0.3],[0.6,0.3],[-0.7,-0.3],[0.6,-0.3]].forEach(function(p){var a=new T.Mesh(new T.CylinderGeometry(0.1,0.12,1.3,6),fur);a.position.set(p[0],-0.55,p[1]);a.rotation.z=p[0]*0.08;g.add(a);});
- g.position.set(x,y,z);g.scale.setScalar(s);scene.add(g);lastG=g;
- anim.push(function(t){g.rotation.z=Math.sin(t*0.5)*0.04;head.rotation.y=Math.sin(t*0.4)*0.4;});}
-function snake(x,y,z,s){var g=new T.Group(),pts=[],j;
+ [[-0.6,0.3],[0.6,0.3],[-0.7,-0.3],[0.6,-0.3]].forEach(function(p){var a=new T.Mesh(new T.CylinderGeometry(0.12,0.1,1.2,6),fur);a.position.set(p[0],0.55,p[1]);a.rotation.z=-p[0]*0.08;g.add(a);});
+ anim.push(function(t){head.rotation.y=Math.sin(t*0.4)*0.4;head.rotation.z=Math.sin(t*0.6)*0.1;});return g;}
+function snake(){var g=new T.Group(),pts=[],j;
  for(j=0;j<=14;j++)pts.push(new T.Vector3(j*0.4-2.8,Math.sin(j*0.9)*0.35+0.3,Math.cos(j*0.7)*0.25));
  g.add(new T.Mesh(new T.TubeGeometry(new T.CatmullRomCurve3(pts),60,0.17,8,false),std(0x5a9a3a,0.6)));
  var head=part(g,std(0x4f8a32,0.6),0.34,0.2,0.26,3.0,0.3,-0.2);
  part(g,std(0xF2C230,0.4),0.06,0.06,0.06,3.1,0.4,-0.05);part(g,std(0xF2C230,0.4),0.06,0.06,0.06,3.1,0.4,-0.35);
- g.position.set(x,y,z);g.scale.setScalar(s);scene.add(g);lastG=g;
- anim.push(function(t){g.rotation.z=Math.sin(t*0.8)*0.02;head.position.y=0.3+Math.sin(t*1.4)*0.08;});}
-function frog(x,y,z,s){var g=new T.Group(),gr=std(0x58a83a,0.5),dk=std(0x1a1a10,0.4);
- part(g,gr,0.8,0.5,1,0,0,0);part(g,std(0xe8e0a0,0.6),0.55,0.3,0.7,0,-0.15,0.1);
+ anim.push(function(t){head.position.y=0.3+Math.sin(t*1.4)*0.08;});return g;}
+function frog(){var g=new T.Group(),gr=std(0x58a83a,0.5),dk=std(0x1a1a10,0.4);
+ var body=part(g,gr,0.8,0.5,1,0,0,0);part(g,std(0xe8e0a0,0.6),0.55,0.3,0.7,0,-0.15,0.1);
  [-0.4,0.4].forEach(function(ex){part(g,std(0xF2C230,0.3),0.22,0.22,0.22,ex,0.5,0.55);part(g,dk,0.1,0.1,0.1,ex,0.52,0.74);});
  [-0.7,0.7].forEach(function(lx){part(g,gr,0.3,0.25,0.7,lx,-0.15,-0.3);});
- g.position.set(x,y,z);g.scale.setScalar(s);scene.add(g);lastG=g;
- anim.push(function(t){g.scale.y=s*(1+0.04*Math.sin(t*2.5));});}
-monkey(-visW*0.3,hh*0.12+0.5+1.45,-11.8,1.0);reg('monkey',lastG);
-sloth(visW*0.3,-hh*0.35-0.3,-13.8,0.9);reg('sloth',lastG);
-snake(visW*0.2,hh*0.78+0.7,-23.5,1.3);reg('snake',lastG);
-frog(-visW*0.3,-hh*0.86,-3.5,0.8);reg('frog',lastG);
+ anim.push(function(t){body.scale.y=0.5*(1+0.08*Math.sin(t*2.5));});return g;}
+reg('monkey',monkey(),new T.Vector3(-visW*0.36,logTop+1.45*2.3,4),2.3);
+reg('frog',frog(),new T.Vector3(-visW*0.12,logTop+0.4*3.2,4),3.2);
+reg('sloth',sloth(),new T.Vector3(visW*0.13,logTop+0.1,4),1.9);
+reg('snake',snake(),new T.Vector3(visW*0.36,logTop+0.45*2,4),2.0);
+cluster(-hw*0.95,sy+1.2,1.5,Math.PI*0.5,3,visH*0.09,1.2);cluster(hw*0.95,sy+1.2,1.5,Math.PI*0.5,3,visH*0.09,1.2);
+var DUR={monkey:0.9,frog:0.7,sloth:2.6,snake:2.2},ARC={monkey:0.16,frog:0.2,sloth:0.02,snake:0.01};
 
 /* бабочки */
 var bf=[];
@@ -174,16 +178,28 @@ for(i=0;i<3;i++){var gp=new T.Group(),wl,wr,tri=new T.Shape();tri.moveTo(0,0);tr
  gp.add(wl);gp.add(wr);gp.scale.setScalar(visW*0.03);gp.position.z=2.5;scene.add(gp);bf.push({g:gp,l:wl,r:wr,p:i*2.1});}
 
 var lastT=0;
-return {cluster:cluster,setHelper:function(id,on){if(pets[id])pets[id].on=on;},pulse:function(id){if(pets[id])pets[id].pulse=1;},update:function(t){
+return {cluster:cluster,
+ setHelper:function(id,on){if(pets[id])pets[id].on=on;},
+ pulse:function(id){if(pets[id])pets[id].pulse=1;},
+ busy:function(id){return !!(pets[id]&&pets[id].act);},
+ send:function(id,to,cb){var p=pets[id];if(!p||p.act)return false;p.act={t:0,phase:0,to:new T.Vector3(to.x,to.y,to.z),cb:cb};return true;},
+ update:function(t){
  var dt=Math.min(Math.max(t-lastT,0),0.1);lastT=t;
  sway.forEach(function(s){s.o.rotation.z=s.b+Math.sin(t*s.s+s.p)*s.a;});
  anim.forEach(function(f){f(t);});
- for(var id in pets){var pt=pets[id],tg=pt.on?0.55+0.2*Math.sin(t*3):0;pt.op+=(tg-pt.op)*Math.min(1,dt*4);pt.h.material.opacity=pt.op;
-  if(pt.pulse>0){pt.pulse=Math.max(0,pt.pulse-dt*1.1);pt.g.position.y=pt.y0+Math.abs(Math.sin((1-pt.pulse)*Math.PI*3))*1.1*pt.pulse;pt.h.material.opacity=Math.min(1,pt.op+pt.pulse);}
-  else pt.g.position.y=pt.y0;}
+ for(var id in pets){var pt=pets[id],pos=pt.g.position,a=pt.act,tg=pt.on?0.55+0.2*Math.sin(t*3):0;
+  pt.op+=(tg-pt.op)*Math.min(1,dt*4);pt.h.material.opacity=pt.op;
+  if(a){a.t+=dt;var d=DUR[id],arc=ARC[id]*visH,u,e;
+   if(a.phase===0){u=Math.min(1,a.t/d);e=u*u*(3-2*u);pos.lerpVectors(pt.home,a.to,e);pos.y+=Math.sin(Math.PI*u)*arc;pt.g.rotation.z=-0.3*Math.sin(Math.PI*u);
+    if(id==='snake')pos.y+=Math.sin(u*22)*0.35;pt.g.rotation.y=Math.max(-0.7,Math.min(0.7,(a.to.x-pt.home.x)*0.04));
+    if(u>=1){a.phase=1;a.t=0;if(a.cb){var cb=a.cb;a.cb=null;cb();}}}
+   else if(a.phase===1){pos.copy(a.to);pos.y+=Math.abs(Math.sin(a.t*14))*visH*0.02;pt.g.rotation.z=0;if(a.t>0.55){a.phase=2;a.t=0;}}
+   else{u=Math.min(1,a.t/d);e=u*u*(3-2*u);pos.lerpVectors(a.to,pt.home,e);pos.y+=Math.sin(Math.PI*u)*arc;pt.g.rotation.z=0.3*Math.sin(Math.PI*u);pt.g.rotation.y=Math.max(-0.7,Math.min(0.7,(pt.home.x-a.to.x)*0.04));
+    if(u>=1){pt.act=null;pt.g.rotation.z=0;pt.g.rotation.y=0;pos.copy(pt.home);}}}
+  else{pos.copy(pt.home);pt.g.rotation.y=0;pt.g.rotation.z=0;
+   if(pt.pulse>0){pt.pulse=Math.max(0,pt.pulse-dt*1.1);pos.y+=Math.abs(Math.sin((1-pt.pulse)*Math.PI*3))*1.1*pt.pulse;pt.h.material.opacity=Math.min(1,pt.op+pt.pulse);}}}
  bf.forEach(function(b,k){var tt=t*0.5+b.p;b.g.position.x=Math.sin(tt*1.3)*hw*0.8;b.g.position.y=Math.sin(tt*0.9+k)*hh*0.75;b.g.rotation.z=Math.cos(tt*1.3)*0.5;var f=Math.sin(t*14+b.p);b.l.rotation.y=f;b.r.rotation.y=-f;});
  for(var j=0;j<DN;j++){dp[j*3+1]+=dt*0.4;dp[j*3]+=Math.sin(t+j)*dt*0.3;if(dp[j*3+1]>hh)dp[j*3+1]=-hh;}
  dg.attributes.position.needsUpdate=true;}};
 };
 })();
- 
