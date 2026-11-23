@@ -73,8 +73,22 @@ var SP=[
 {n:'Кристальный фламинго',ext:12.5,tilt:0.1,rx:2.1,ry:1.5,rz:1.1,top:0xF59DB8,mid:0xF07FA3,belly:0xF9B9CC,
  head:{x:2.45,y:5.75,r:0.62,top:0xF59DB8,mid:0xF07FA3},neck:[[1.4,0.6],[2.5,1.4],[2.7,2.8],[2.0,4.1],[2.3,5.2]],neckR:0.36,
  beak:{len:1.5,r:0.34,curve:2.4,c0:0xF7C6D4,c1:0x222222,l0:0xF7C6D4,l1:0x222222,flat:0.9},eye:{ring:0xF6E7A0,er:0.14},
- wing:{len:3.3,c1:0xF07FA3,c2:0x2b2b2b,n:9,w:0.34},tail:{len:2,n:4,spread:0.1,c1:0xF07FA3,c2:0xE0668C,w:0.28},legs:{h:4.6,col:0xE8789A},patches:[]}
+ wing:{len:3.3,c1:0xF07FA3,c2:0x2b2b2b,n:9,w:0.34},tail:{len:2,n:4,spread:0.1,c1:0xF07FA3,c2:0xE0668C,w:0.28},legs:{h:4.6,col:0xE8789A},patches:[]},
+{n:'Бирюзовая сизоворонка',ext:8,tilt:0.35,rx:2.1,ry:1.55,rz:1.25,top:0x2ec4d6,mid:0x3ad0e0,belly:0x7fe8f0,head:{r:1.05,top:0x2ec4d6,mid:0x3ad0e0},beak:{len:1.6,r:0.7,curve:0.25,c0:0x3a3a40,c1:0x222226,flat:0.8},eye:{ring:0x8a5a2e,er:0.19},wing:{len:3.2,c1:0x3ad0e0,c2:0x1b4fa0,n:9,w:0.33},tail:{len:3.2,n:5,spread:0.12,c1:0x2ec4d6,c2:0x1b4fa0,w:0.3},legs:{h:1.3,col:0x6a5a4a},patches:[]},
+{n:'Малиновый неразлучник',ext:6.5,tilt:0.4,rx:1.7,ry:1.3,rz:1.1,top:0x4cbf3a,mid:0x5cd04a,belly:0xa8e060,head:{r:0.95,top:0xe02a3a,mid:0xf0455a},beak:{len:0.9,r:0.55,curve:0.8,c0:0xff5a3a,c1:0xe0402a,flat:0.8},eye:{ring:0xffffff,er:0.17},wing:{len:2.6,c1:0x3aa83a,c2:0x1d6b2a,n:8,w:0.3},tail:{len:2.4,n:5,spread:0.1,c1:0x3aa83a,c2:0x2d6bd0,w:0.26},legs:{h:1.0,col:0xc9a98a},patches:[]},
+{n:'Солнечная корелла',ext:9,tilt:0.4,rx:2.0,ry:1.5,rz:1.15,top:0x9a9aa0,mid:0xaeaeb4,belly:0xc4c4c8,head:{r:1.05,top:0xffe44d,mid:0xffd23a},crest:{n:5,len:2.0,c1:0xffe44d,c2:0xffc933},beak:{len:1.0,r:0.55,curve:0.7,c0:0x9a9aa0,c1:0x7a7a82,flat:0.8},eye:{ring:0x333333,er:0.17},wing:{len:3.2,c1:0xb4b4ba,c2:0xf0f0f4,n:9,w:0.32},tail:{len:5,n:5,spread:0.1,c1:0xaeaeb4,c2:0x6a6a72,w:0.26},legs:{h:1.3,col:0x8a8a90},patches:[{col:0xff7a2a,sx:0.45,sy:0.4,sz:0.1,dir:[0.25,-0.1,0.95]}]},
+{n:'Лазурный зимородок',ext:7.5,tilt:0.3,rx:2.0,ry:1.5,rz:1.2,top:0x1f6fd0,mid:0x2f8fe0,belly:0xff9a3a,head:{r:1.1,top:0x1f6fd0,mid:0x2f8fe0},beak:{len:2.8,r:0.8,curve:0.05,c0:0x222226,c1:0x111114,flat:0.85},eye:{ring:0xffffff,er:0.17},wing:{len:3.0,c1:0x1f6fd0,c2:0x0f3f90,n:9,w:0.32},tail:{len:2.2,n:4,spread:0.1,c1:0x1f6fd0,c2:0x0f3f90,w:0.28},legs:{h:1.1,col:0xe8603a},patches:[{col:0xffffff,sx:0.5,sy:0.35,sz:0.1,dir:[0.4,-0.45,0.8]}]},
+{n:'Золотой калао',ext:10.5,tilt:0.25,rx:2.4,ry:1.8,rz:1.4,top:0x2a2a2e,mid:0x303036,belly:0xf2efe6,head:{r:1.1,top:0x2a2a2e,mid:0x303036},beak:{len:3.6,r:1.15,curve:0.35,c0:0xffc233,c1:0xff7a1f,l0:0xffd25a,l1:0xff8a2a,flat:0.75},eye:{ring:0xff3a3a,er:0.2},wing:{len:3.6,c1:0x2a2a2e,c2:0xf2efe6,n:9,w:0.36},tail:{len:5,n:5,spread:0.1,c1:0xf2efe6,c2:0x2a2a2e,w:0.34},legs:{h:1.5,col:0x555555},patches:[{col:0x4aa0e0,sx:0.5,sy:0.4,sz:0.1,dir:[0.5,-0.6,0]}]},
+{n:'Изумрудный кетсаль',ext:15,tilt:0.35,rx:2.1,ry:1.6,rz:1.25,top:0x1f9e4a,mid:0x2fb85a,belly:0xe03a3a,head:{r:1.05,top:0x1f9e4a,mid:0x2fb85a},crest:{n:6,len:1.6,c1:0x2fb85a,c2:0x6fe08a},beak:{len:1.0,r:0.6,curve:0.3,c0:0xf2d03a,c1:0xe0b020,flat:0.8},eye:{ring:0x333333,er:0.17},wing:{len:3.2,c1:0x1f9e4a,c2:0x0f6e3a,n:9,w:0.32},tail:{len:11,n:3,spread:0.05,c1:0x2fb85a,c2:0xf0f8f0,w:0.45},legs:{h:1.3,col:0x8a7a5a},patches:[]},
+{n:'Райская птица «Пламя»',ext:13,tilt:0.35,rx:2.0,ry:1.5,rz:1.2,top:0xffa000,mid:0xff8a00,belly:0xffd24a,head:{r:1.0,top:0xffd24d,mid:0xffb82e},beak:{len:1.8,r:0.5,curve:0.1,c0:0x8fb0c0,c1:0x5a7080,flat:0.8},eye:{ring:0xffffff,er:0.17},wing:{len:3.2,c1:0xff8a00,c2:0xffd24d,n:9,w:0.32},tail:{len:9,n:4,spread:0.08,c1:0xff6a00,c2:0xffd24d,w:0.12},legs:{h:1.3,col:0x7a9aa8},patches:[{col:0x1fbf7a,sx:0.55,sy:0.4,sz:0.1,dir:[0.5,-0.5,0.5]}]},
+{n:'Павлин-радуга',ext:12,tilt:0.12,rx:2.2,ry:1.6,rz:1.3,top:0x1f6fd0,mid:0x1590c8,belly:0x0f4a90,head:{x:2.2,y:4.1,r:0.65,top:0x1f6fd0,mid:0x2aa0e0},neck:[[1.2,0.6],[1.9,1.5],[2.1,2.6],[2.0,3.6]],neckR:0.42,crest:{n:7,len:1.2,c1:0x2aa0e0,c2:0x6fe0ff},beak:{len:1.0,r:0.35,curve:0.3,c0:0x9a9a9a,c1:0x6a6a6a,flat:0.85},eye:{ring:0xffffff,er:0.13},wing:{len:3.2,c1:0x1590c8,c2:0x0f3f90,n:9,w:0.34},tail:{len:7,n:15,spread:0.55,c1:0x1f9e4a,c2:0xffd24d,w:0.45},legs:{h:1.6,col:0x8a7a6a},patches:[]},
+{n:'Лирохвост-хамелеон',ext:12,tilt:0.25,rx:2.1,ry:1.55,rz:1.25,top:0x6a4a2e,mid:0x7a5a38,belly:0xb08a5a,head:{r:1.0,top:0x6a4a2e,mid:0x7a5a38},crest:{n:4,len:1.2,c1:0x7a5a38,c2:0xb08a5a},beak:{len:1.4,r:0.5,curve:0.1,c0:0x4a3a2a,c1:0x2a2018,flat:0.8},eye:{ring:0xe0c070,er:0.17},wing:{len:3.0,c1:0x6a4a2e,c2:0xb08a5a,n:9,w:0.32},tail:{len:8,n:12,spread:0.4,c1:0x7a5a38,c2:0xe8e8f0,w:0.25},legs:{h:1.5,col:0x5a4a3a},patches:[]},
+{n:'Светлячковая сова',ext:8,tilt:0.1,rx:2.1,ry:2.0,rz:1.8,top:0x6a5a48,mid:0x8a7658,belly:0xe8dcc0,head:{r:1.5,top:0x7a6850,mid:0x9a8660},beak:{len:0.7,r:0.35,curve:0.3,c0:0x555555,c1:0x333333,flat:0.8},eye:{ring:0xffe27a,er:0.5},wing:{len:2.6,c1:0x6a5a48,c2:0xc8b898,n:8,w:0.4},tail:{len:2,n:4,spread:0.1,c1:0x6a5a48,c2:0xc8b898,w:0.34},legs:{h:1.0,col:0xc8b898},patches:[{col:0xf0e4c8,sx:1.0,sy:0.9,sz:0.15,dir:[0.35,0.1,0.9]}]},
+{n:'Венценосный голубь',ext:8.5,tilt:0.25,rx:2.2,ry:1.6,rz:1.3,top:0x6f8fb4,mid:0x7f9fc4,belly:0x5a7aa0,chest:0xa0384e,head:{r:1.0,top:0x7f9fc4,mid:0x8fafd4},crest:{n:14,len:1.9,c1:0xdfe8f4,c2:0xffffff},beak:{len:1.4,r:0.4,curve:0.2,c0:0x7a7a82,c1:0x5a5a62,flat:0.8},eye:{ring:0xe03a3a,er:0.2},wing:{len:3.2,c1:0x6f8fb4,c2:0x4a6a94,n:9,w:0.34},tail:{len:4,n:6,spread:0.12,c1:0x6f8fb4,c2:0xdfe8f4,w:0.32},legs:{h:1.4,col:0xc0506a},patches:[]},
+{n:'Феникс-ара',ext:14,tilt:0.5,rx:2.3,ry:1.7,rz:1.35,top:0xff3a1a,mid:0xff6a1a,belly:0xffc42e,head:{r:1.15,top:0xff3a1a,mid:0xff7a1a},crest:{n:6,len:3,c1:0xffc42e,c2:0xff2a1a},beak:{len:1.5,r:0.85,curve:0.7,c0:0xffe08a,c1:0xffc233,l0:0x7a3a10,l1:0x5a2a08,flat:0.78},eye:{ring:0xffe27a,er:0.2},wing:{len:3.8,c1:0xff3a1a,c2:0xffd24d,n:9,w:0.34},tail:{len:9,n:9,spread:0.22,c1:0xff3a1a,c2:0xffd24d,w:0.3},legs:{h:1.5,col:0x5a4a3a},patches:[{col:0xffd24d,sx:0.6,sy:0.5,sz:0.12,dir:[0.45,0,0.9]}]}
 ];
+var ORDER=[3,4,6,7,8,9,0,2,1,10,11,12,13,14,15,16,5,17];
+SP=ORDER.map(function(i){return SP[i];});
 window.BIRD_NAMES=SP.map(function(s){return s.n;});
 window.makeBird=function(k){
  seed=777+k;
@@ -109,7 +123,7 @@ window.makeBird=function(k){
  var wings=[];
  [-1,1].forEach(function(sd){var wg=wingMesh(s.wing,sd);wg.position.set(0.35,ry*0.4,sd*rz*0.82);tg.add(wg);wings.push({g:wg,sd:sd});});
  var tl=s.tail,tailG=new T.Group();tailG.position.set(-rx*0.85,-ry*0.1,0);tg.add(tailG);
- for(var i2=0;i2<tl.n;i2++){var t3=i2/(tl.n-1)-0.5,pv2=new T.Group();pv2.rotation.y=t3*tl.spread*2;pv2.rotation.z=0.3+Math.abs(t3)*0.1;
+ for(var i2=0;i2<tl.n;i2++){var t3=i2/(tl.n-1)-0.5,pv2=new T.Group();pv2.rotation.y=t3*tl.spread*2;pv2.rotation.z=(tl.rz!==undefined?tl.rz:0.3)+Math.abs(t3)*0.1;
   pv2.add(feather(tl.len*(1-Math.abs(t3)*0.18),tl.w,C(tl.c1),C(tl.c2),0.04));tailG.add(pv2);}
  var lg=s.legs,perchY=-ry*0.75-lg.h,legMat=new T.MeshStandardMaterial({color:lg.col,roughness:0.7});
  [-1,1].forEach(function(sd){
@@ -120,7 +134,35 @@ window.makeBird=function(k){
  for(var q=0;q<4;q++){var lf=new T.Mesh(new T.SphereGeometry(1,10,8),new T.MeshStandardMaterial({color:0x2E8B57,roughness:0.6}));lf.scale.set(0.8,0.05,0.35);
   lf.position.set(0.15+(q%2?0.5:-0.5),perchY+0.05,(q<2?-1:1)*(3+q*0.3));lf.rotation.y=q*0.9;lf.rotation.z=0.25;B.add(lf);}
  var top=hy+h.r;
- return {B:B,tg:tg,body:body,hg:hg,eyes:eyes,wings:wings,tail:tailG,hover:s.hover,ext:s.ext,cx:0.6,cy:(perchY+top)/2};
+ return {B:B,tg:tg,body:body,hg:hg,eyes:eyes,wings:wings,tail:tailG,hover:s.hover,ext:s.ext,cx:0.6,cy:(perchY+top)/2,off:off.clone(),hr:h.r};
 };
+
+/* аксессуары: надеваются на голову птицы */
+window.setAccessory=function(A,id){
+ if(A.acc){A.hg.remove(A.acc);A.acc=null;}
+ if(!id)return;
+ var g=new T.Group(),o=A.off,r=A.hr,i,a;
+ function mat(c,m){return new T.MeshStandardMaterial({color:c,roughness:0.4,metalness:m||0});}
+ if(id==='crown'){
+  g.add(new T.Mesh(new T.CylinderGeometry(r*0.5,r*0.55,r*0.3,16),mat(0xF2C230,0.7)));
+  for(i=0;i<6;i++){a=i/6*6.283;var sp=new T.Mesh(new T.ConeGeometry(r*0.12,r*0.38,6),mat(0xF2C230,0.7));sp.position.set(Math.cos(a)*r*0.5,r*0.3,Math.sin(a)*r*0.5);g.add(sp);}
+  g.position.set(o.x-r*0.1,o.y+r*0.95,0);g.rotation.z=0.25;}
+ else if(id==='tophat'){
+  var cr=new T.Mesh(new T.CylinderGeometry(r*0.42,r*0.45,r*0.8,16),mat(0x1a1a1a));cr.position.y=r*0.4;g.add(cr);
+  var br=new T.Mesh(new T.CylinderGeometry(r*0.8,r*0.8,r*0.08,20),mat(0x1a1a1a));g.add(br);
+  var bd=new T.Mesh(new T.CylinderGeometry(r*0.46,r*0.46,r*0.16,16),mat(0xC2437B));bd.position.y=r*0.12;g.add(bd);
+  g.position.set(o.x-r*0.1,o.y+r*0.95,0);g.rotation.z=0.2;}
+ else if(id==='glasses'){
+  [-1,1].forEach(function(sd){var lens=new T.Mesh(new T.SphereGeometry(1,14,10),mat(0x111111,0.3)),d=new T.Vector3(0.5,0.3,0.8*sd).normalize();
+   lens.scale.set(r*0.34,r*0.3,r*0.07);lens.position.copy(d).multiplyScalar(r*1.05);lens.lookAt(lens.position.clone().add(d));g.add(lens);});
+  g.position.copy(o);}
+ else if(id==='flower'){
+  for(i=0;i<5;i++){a=i/5*6.283;var pt=new T.Mesh(new T.SphereGeometry(1,8,6),mat(0xFF6FA5));pt.scale.set(r*0.2,r*0.12,r*0.05);pt.position.set(Math.cos(a)*r*0.2,Math.sin(a)*r*0.2,0);pt.rotation.z=a;g.add(pt);}
+  var ct=new T.Mesh(new T.SphereGeometry(r*0.09,8,6),mat(0xF7D21F));ct.position.z=r*0.05;g.add(ct);
+  g.position.set(o.x-r*0.2,o.y+r*0.6,r*0.72);}
+ else if(id==='bowtie'){
+  [-1,1].forEach(function(sd){var w=new T.Mesh(new T.SphereGeometry(1,10,8),mat(0xE24B4A));w.scale.set(r*0.2,r*0.2,r*0.34);w.position.z=sd*r*0.3;g.add(w);});
+  var kn=new T.Mesh(new T.SphereGeometry(r*0.13,8,6),mat(0xB02A2A));g.add(kn);
+  g.position.set(o.x+r*0.3,o.y-r*0.85,0);}
+ A.hg.add(g);A.acc=g;};
 })();
-  
