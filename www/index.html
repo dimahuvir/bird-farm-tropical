@@ -38,8 +38,22 @@ html,body{margin:0;height:100%;background:var(--night);color:var(--egg);font-fam
 #nav button{flex:1;padding:11px 2px;font-size:13.5px;font-weight:700;font-family:inherit;border:0;border-radius:13px;background:var(--moss);color:var(--egg)}
 #nav button.on{background:var(--amber);color:var(--night)}
 #nav button:active{transform:scale(.97)}
+#nav{gap:4px;padding:9px 6px}#nav button{font-size:12.5px;padding:11px 1px}
+#sell{display:none;position:absolute;right:10px;bottom:10px;z-index:5;font-family:inherit;font-weight:800;font-size:13px;color:#1b1204;background:linear-gradient(#ffc766,#f2a33a);border:0;border-radius:14px;padding:10px 14px;box-shadow:0 3px 0 #9a6414,0 6px 12px rgba(0,0,0,.45)}
+#sell:active{transform:translateY(2px)}
+#snd{position:absolute;top:8px;right:8px;z-index:5;font-size:18px;width:38px;height:38px;border-radius:50%;border:1px solid rgba(246,231,193,.35);background:rgba(10,38,32,.75);color:var(--egg)}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0 12px}
+.chip{font-family:inherit;font-weight:700;font-size:12px;color:var(--egg);background:#17413A;border:1px solid rgba(246,231,193,.25);border-radius:999px;padding:7px 11px}
+.chip.on{background:var(--amber);color:#1b1204;border-color:var(--amber)}
+.up{color:#7bd88f}.dn{color:#ff8a8a}
 #toast{position:absolute;left:50%;bottom:84px;transform:translateX(-50%);width:max-content;max-width:92%;text-align:center;white-space:pre-line;background:var(--berry);color:#fff;padding:10px 16px;border-radius:12px;font-size:14px;line-height:1.35;opacity:0;transition:opacity .2s;pointer-events:none;z-index:9}
 #toast.show{opacity:1}
+#modal{display:none;position:fixed;inset:0;align-items:center;justify-content:center;background:rgba(0,0,0,.6);z-index:50;padding:20px}
+#modal .box{width:100%;max-width:320px;background:linear-gradient(#1f5242,#0f3027);border:2px solid var(--amber);border-radius:20px;padding:20px 16px 16px;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.6)}
+#mtitle{font-size:18px;font-weight:800;color:var(--amber);line-height:1.3;white-space:pre-line}
+#mbody{font-size:14px;line-height:1.5;margin-top:10px;white-space:pre-line}
+#mok{margin-top:16px;font-family:inherit;font-weight:800;font-size:16px;color:#1b1204;background:linear-gradient(#ffc766,#f2a33a);border:0;border-radius:14px;padding:11px 40px;box-shadow:0 3px 0 #9a6414}
+#mok:active{transform:translateY(2px);box-shadow:0 1px 0 #9a6414}
 #panel{display:none;position:absolute;inset:0;overflow-y:auto;background:rgba(8,30,24,.97);z-index:6;padding:12px 12px 20px}
 #panel h2{margin:4px 0 10px;font-size:18px;color:var(--amber)}
 #panel h3{margin:16px 0 8px;font-size:13px;color:#9fd8a8;text-transform:uppercase;letter-spacing:.04em}
@@ -68,23 +82,30 @@ html,body{margin:0;height:100%;background:var(--night);color:var(--egg);font-fam
     <div class="stat" id="coins">🪙 0</div>
     <div class="stat" id="gems">💎 0</div>
   </div>
-  <div id="stage"><div id="vig"></div><div id="names"></div><div id="panel"></div></div>
+  <div id="stage"><div id="vig"></div><div id="names"></div><button id="sell"></button><button id="snd">🔊</button><div id="panel"></div></div>
   <div id="nav">
     <button class="on" data-t="farm">Ферма</button>
     <button data-t="birds">Птицы</button>
+    <button data-t="market">Рынок</button>
     <button data-t="shop">Магазин</button>
     <button data-t="friends">Друзья</button>
   </div>
 </div>
 <div id="toast"></div>
+<div id="modal"><div class="box"><div id="mtitle"></div><div id="mbody"></div><button id="mok">ОК</button></div></div>
 <script src="lib/three.min.js"></script>
 <script src="birds.js"></script>
 <script src="jungle.js"></script>
 <script>
 (function(){
 var T=THREE;
-var toast=document.getElementById('toast'),tm;
-function say(t,ms){toast.textContent=t;toast.classList.add('show');clearTimeout(tm);tm=setTimeout(function(){toast.classList.remove('show');},ms||1600);}
+var modal=document.getElementById('modal'),mtitle=document.getElementById('mtitle'),mbody=document.getElementById('mbody'),mq=[],mopen=false;
+function showModal(){
+ var t=mq.shift();
+ if(!t){mopen=false;modal.style.display='none';return;}
+ mopen=true;var parts=t.split('\n');mtitle.textContent=parts[0];mbody.textContent=parts.slice(1).join('\n');mbody.style.display=parts.length>1?'block':'none';modal.style.display='flex';if(typeof lastSfx!=='undefined'&&performance.now()-lastSfx>250)play('modal');}
+function say(t){if(mq.indexOf(t)>=0||mq.length>6)return;mq.push(t);if(!mopen)showModal();}
+document.getElementById('mok').addEventListener('click',showModal);
 function R(a,b){return a+Math.random()*(b-a);}
 function fmt(n){n=Math.round(n);if(n>=1e9)return (n/1e9).toFixed(1)+' млрд';if(n>=1e6)return (n/1e6).toFixed(n>=1e7?0:1)+' млн';if(n>=1e4)return (n/1e3).toFixed(n>=1e5?0:1)+' тыс';return ''+n;}
 
@@ -254,17 +275,97 @@ var REAL=[
 /* ---------- состояние и сохранение ---------- */
 var SAVE_KEY='birdfarm_v3';
 function freshState(){
- var s={eggs:0,coins:0,xp:0,level:1,gems:0,birds:[],own:[],upg:[],slots:[3,4,-1,-1,-1,-1],nsl:2,decor:{},acc:'',accOwn:{},daily:{last:'',streak:0},q:{day:'',p:{eggs:0,pets:0,rare:0},cl:[false,false,false]},x2:0,spd:0,xp2:0};
- for(var i=0;i<NB;i++){s.birds.push({prog:0,ready:false,mood:0});s.own.push(BD[i].price===0);s.upg.push(0);}
+ var s={eggs:0,coins:0,xp:0,level:1,gems:0,birds:[],own:[],upg:[],slots:[3,4,-1,-1,-1,-1],nsl:2,decor:{},acc:'',accOwn:{},daily:{last:'',streak:0},q:{day:'',p:{eggs:0,pets:0,rare:0},cl:[false,false,false]},x2:0,spd:0,xp2:0,barn:0,snd:{m:true,s:true},mkt:{m:[1,1,1,1],d:[0,0,0,0]},orders:[],inv:[],cnt:[],cntCl:[]};
+ for(var i=0;i<NB;i++){s.birds.push({prog:0,ready:false,mood:0});s.own.push(BD[i].price===0);s.upg.push(0);s.inv.push(0);s.cnt.push(0);s.cntCl.push(0);}
  return s;}
 var st=freshState(),fresh=true;
 var savedAt=Date.now();
 try{var raw=localStorage.getItem(SAVE_KEY);if(raw){var o=JSON.parse(raw);if(o&&o.birds&&o.birds.length===NB){var d=freshState();for(var k in d)if(o[k]===undefined)o[k]=d[k];st=o;savedAt=o.savedAt||Date.now();fresh=false;st.birds.forEach(function(b){b.reserved=false;});}}}catch(e){}
+ensureOrders();
 function dayKey(d){return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();}
 function checkDay(){var k=dayKey(new Date());if(st.q.day!==k){st.q={day:k,p:{eggs:0,pets:0,rare:0},cl:[false,false,false]};}}
 function save(){try{st.savedAt=Date.now();localStorage.setItem(SAVE_KEY,JSON.stringify(st));}catch(e){}}
 document.addEventListener('visibilitychange',function(){if(document.hidden)save();});
 window.addEventListener('pagehide',save);
+
+/* ---------- звук: эффекты и живая музыка природы (Web Audio, без файлов) ---------- */
+var AC=null,master,sfxGain,musicGain,musicBus,noiseW,noiseB,lastSfx=0,musicOn=false,sfxLast={};
+function impulse(dur,decay){var n=Math.floor(AC.sampleRate*dur),b=AC.createBuffer(2,n,AC.sampleRate),c,i,d;for(c=0;c<2;c++){d=b.getChannelData(c);for(i=0;i<n;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/n,decay);}return b;}
+function applyAudio(){if(AC){sfxGain.gain.value=st.snd.s?0.8:0;musicGain.gain.value=st.snd.m?0.55:0;}var b=document.getElementById('snd');if(b)b.textContent=(st.snd.m||st.snd.s)?'🔊':'🔇';}
+function audioInit(){
+ if(AC){if(AC.state==='suspended')AC.resume();return;}
+ var Cx=window.AudioContext||window.webkitAudioContext;if(!Cx)return;
+ AC=new Cx();master=AC.createGain();master.gain.value=0.9;master.connect(AC.destination);
+ sfxGain=AC.createGain();sfxGain.connect(master);
+ musicGain=AC.createGain();musicGain.connect(master);
+ musicBus=AC.createGain();musicBus.connect(musicGain);
+ var rv=AC.createConvolver();rv.buffer=impulse(2.6,2.4);var rg=AC.createGain();rg.gain.value=0.45;musicBus.connect(rv);rv.connect(rg);rg.connect(musicGain);
+ var n1=AC.createBuffer(1,AC.sampleRate*3,AC.sampleRate),d1=n1.getChannelData(0),last=0,i;
+ for(i=0;i<d1.length;i++){var w=Math.random()*2-1;last=(last+0.02*w)/1.02;d1[i]=last*3.5;}noiseB=n1;
+ var n2=AC.createBuffer(1,AC.sampleRate*2,AC.sampleRate),d2=n2.getChannelData(0);for(i=0;i<d2.length;i++)d2[i]=Math.random()*2-1;noiseW=n2;
+ applyAudio();startMusic();}
+function tone(f,dur,type,vol,f2,when,dest,pan){
+ if(!AC)return;var t0=AC.currentTime+(when||0),o=AC.createOscillator(),g=AC.createGain(),out=dest||sfxGain;
+ o.type=type||'sine';o.frequency.setValueAtTime(f,t0);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t0+dur);
+ g.gain.setValueAtTime(0.0001,t0);g.gain.exponentialRampToValueAtTime(vol,t0+Math.min(0.015,dur/3));g.gain.exponentialRampToValueAtTime(0.0001,t0+dur);
+ o.connect(g);
+ if(pan!==undefined&&AC.createStereoPanner){var p=AC.createStereoPanner();p.pan.value=pan;g.connect(p);p.connect(out);}else g.connect(out);
+ o.start(t0);o.stop(t0+dur+0.05);}
+function noise(dur,ftype,freq,vol,when,dest){
+ if(!AC)return;var t0=AC.currentTime+(when||0),sr=AC.createBufferSource(),f=AC.createBiquadFilter(),g=AC.createGain();
+ sr.buffer=noiseW;f.type=ftype;f.frequency.value=freq;g.gain.setValueAtTime(vol,t0);g.gain.exponentialRampToValueAtTime(0.0001,t0+dur);
+ sr.connect(f);f.connect(g);g.connect(dest||sfxGain);sr.start(t0);sr.stop(t0+dur+0.05);}
+function chirp(kind,pan,vol,dest){
+ var base=R(2400,4300),t=0,i,n,f,up;
+ if(kind==='trill'){n=Math.round(R(8,14));for(i=0;i<n;i++){tone(i%2?base*1.12:base,0.045,'sine',vol,0,t,dest,pan);t+=0.05;}}
+ else if(kind==='coo'){f=R(380,470);for(i=0;i<3;i++){tone(f,0.5,'sine',vol*1.6,f*0.9,t,dest,pan);t+=0.45;}}
+ else{n=Math.round(R(2,4));for(i=0;i<n;i++){up=Math.random()<0.5;tone(up?base*0.8:base*1.2,0.09,'sine',vol,up?base*1.25:base*0.85,t,dest,pan);t+=0.12;}}}
+var PENT=[220,261.63,293.66,329.63,392,440,523.25,587.33,659.25,784,880];
+var CHORDS=[[110,164.81,220,261.63],[87.31,130.81,174.61,220],[130.81,196,261.63,329.63],[98,146.83,196,246.94]];
+var chordI=0,melI=5;
+function pad(f,t0,dur){
+ var o=AC.createOscillator(),o2=AC.createOscillator(),g=AC.createGain(),lp=AC.createBiquadFilter();
+ o.type='sine';o2.type='triangle';o.frequency.value=f;o2.frequency.value=f*1.004;lp.type='lowpass';lp.frequency.value=1100;
+ g.gain.setValueAtTime(0.0001,t0);g.gain.linearRampToValueAtTime(0.04,t0+2.8);g.gain.setValueAtTime(0.04,t0+dur-3);g.gain.linearRampToValueAtTime(0.0001,t0+dur);
+ o.connect(lp);o2.connect(lp);lp.connect(g);g.connect(musicBus);o.start(t0);o2.start(t0);o.stop(t0+dur+0.1);o2.stop(t0+dur+0.1);}
+function chordTick(){if(!AC||document.hidden)return;var t0=AC.currentTime+0.05,ch=CHORDS[chordI%4];chordI++;ch.forEach(function(f,i){pad(f,t0+i*0.15,10);});}
+function melTick(){
+ if(AC&&!document.hidden&&st.snd.m){var n=Math.random()<0.25?3:1,i,f;
+  for(i=0;i<n;i++){melI=Math.max(0,Math.min(PENT.length-1,melI+Math.round(R(-2,2))));f=PENT[melI];tone(f,1.6,'triangle',0.11,0,i*0.28,musicBus,R(-0.4,0.4));tone(f*2,0.9,'sine',0.03,0,i*0.28,musicBus);}}
+ setTimeout(melTick,R(1400,3800));}
+function birdTick(){if(AC&&!document.hidden&&st.snd.m){var r=Math.random();chirp(r<0.55?'tweet':r<0.85?'trill':'coo',R(-0.8,0.8),0.045,musicBus);}setTimeout(birdTick,R(2200,7000));}
+function startMusic(){
+ if(musicOn)return;musicOn=true;
+ var ws=AC.createBufferSource();ws.buffer=noiseB;ws.loop=true;var wf=AC.createBiquadFilter();wf.type='bandpass';wf.frequency.value=420;wf.Q.value=0.6;var wg=AC.createGain();wg.gain.value=0.5;
+ var l1=AC.createOscillator(),l1g=AC.createGain();l1.frequency.value=0.07;l1g.gain.value=0.25;l1.connect(l1g);l1g.connect(wg.gain);
+ var l2=AC.createOscillator(),l2g=AC.createGain();l2.frequency.value=0.05;l2g.gain.value=200;l2.connect(l2g);l2g.connect(wf.frequency);
+ ws.connect(wf);wf.connect(wg);wg.connect(musicGain);ws.start();l1.start();l2.start();
+ var bs=AC.createBufferSource();bs.buffer=noiseW;bs.loop=true;var bf=AC.createBiquadFilter();bf.type='bandpass';bf.frequency.value=2600;bf.Q.value=0.7;var bg=AC.createGain();bg.gain.value=0.028;
+ var l3=AC.createOscillator(),l3g=AC.createGain();l3.frequency.value=5.3;l3g.gain.value=0.012;l3.connect(l3g);l3g.connect(bg.gain);
+ bs.connect(bf);bf.connect(bg);bg.connect(musicGain);bs.start();l3.start();
+ chordTick();setInterval(chordTick,8000);setTimeout(melTick,2500);setTimeout(birdTick,1500);}
+var SFXD={
+ tap:function(){tone(520,0.07,'sine',0.18,280);},
+ ui:function(){tone(740,0.06,'triangle',0.2,520);tone(1480,0.03,'sine',0.05);},
+ open:function(){noise(0.25,'bandpass',900,0.08);tone(523,0.18,'sine',0.15,0,0.02);tone(784,0.22,'sine',0.14,0,0.1);},
+ ok:function(){tone(660,0.08,'triangle',0.22,440);},
+ modal:function(){tone(440,0.1,'sine',0.2,660);tone(880,0.12,'sine',0.12,0,0.07);},
+ egg:function(p){p=p||1;tone(880*p,0.28,'sine',0.22);tone(1320*p,0.3,'triangle',0.14,0,0.05);tone(2637*p,0.14,'sine',0.07,0,0.1);},
+ coin:function(){tone(1318,0.12,'square',0.08);tone(1760,0.3,'square',0.07,0,0.09);noise(0.3,'highpass',6000,0.06,0.05);},
+ level:function(){[523,659,784,1046,1318].forEach(function(f,i){tone(f,0.35,'triangle',0.2,0,i*0.11);tone(f*2,0.25,'sine',0.06,0,i*0.11);});},
+ buy:function(){tone(1046,0.12,'sine',0.2);tone(1568,0.35,'sine',0.2,0,0.1);},
+ err:function(){tone(150,0.16,'square',0.12,110);},
+ ready:function(){tone(1760,0.18,'sine',0.08);tone(2349,0.2,'sine',0.07,0,0.08);tone(2960,0.25,'sine',0.06,0,0.16);},
+ boing:function(){tone(180,0.28,'sine',0.25,620);tone(620,0.2,'sine',0.15,300,0.26);},
+ chirp:function(){chirp(Math.random()<0.7?'tweet':'trill',R(-0.5,0.5),0.18,sfxGain);}};
+function play(n,a){
+ if(!AC||!st.snd.s)return;var now=performance.now();
+ if(sfxLast[n]&&now-sfxLast[n]<(n==='ready'?400:n==='tap'?60:30))return;
+ sfxLast[n]=now;lastSfx=now;try{SFXD[n](a);}catch(e){}}
+document.addEventListener('pointerdown',function(){audioInit();},true);
+document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('button');if(!b)return;play(b.id==='mok'?'ok':b.classList.contains('off')?'err':'ui');},true);
+document.addEventListener('visibilitychange',function(){if(!AC)return;if(document.hidden)AC.suspend();else AC.resume();});
+document.getElementById('snd').addEventListener('click',function(){var on=st.snd.m||st.snd.s;st.snd.m=st.snd.s=!on;applyAudio();save();});
 
 /* ---------- экономика ---------- */
 function helperOn(id){for(var i=0;i<HELPERS.length;i++)if(HELPERS[i].id===id)return st.level>=HELPERS[i].lvl;return false;}
@@ -280,9 +381,9 @@ function hud(){
  document.getElementById('lvl').textContent='Уровень '+st.level;
  document.getElementById('emo').textContent=rankName(st.level);
  document.getElementById('xpfill').style.width=Math.min(100,st.xp/need()*100)+'%';
- document.getElementById('eggs').textContent='🥚 '+fmt(st.eggs);
+ document.getElementById('eggs').textContent='🥚 '+total()+'/'+cap()+(total()>=cap()?'!':'');updSell();
  document.getElementById('coins').textContent='🪙 '+fmt(st.coins)+(Date.now()<st.x2?'×2':'');
- document.getElementById('gems').textContent='💎 '+st.gems;
+ document.getElementById('gems').textContent='💎 '+st.gems;applyAudio();
  updSlots();syncHelpers();if(panelName!=='farm')renderPanel();}
 function syncHelpers(){HELPERS.forEach(function(h){jungle.setHelper(h.id,st.level>=h.lvl);});}
 function levelUp(){
@@ -292,20 +393,19 @@ function levelUp(){
  HELPERS.forEach(function(h){if(h.lvl===L)parts.push(h.ico+' '+h.name+' теперь помогает на ферме');});
  BD.forEach(function(d,i){if(d.lvl===L&&d.lvl>1)parts.push('Можно купить птицу: '+BN[i]);});
  SL.forEach(function(d,i){if(d.lvl===L&&L>1)parts.push('Можно открыть слот '+(i+1));});
- say(parts.join('\n'),5200);
+ play('level');say(parts.join('\n'),5200);
  burst(0,0,3,60,0xF2A33A,cellW*1.6,cellW*0.5);burst(0,0,3,40,0xff66cc,cellW*1.4,cellW*0.4);}
 function addXp(n){if(Date.now()<st.xp2)n*=2;st.xp+=n;while(st.xp>=need()){st.xp-=need();st.level++;levelUp();}}
 
 checkDay();
 var todayKey=dayKey(new Date()),away=Math.min((Date.now()-savedAt)/1000,8*3600),offE=0,offC=0,eff=helperOn('sloth')?0.9:0.6;
-if(!fresh&&away>60){st.slots.forEach(function(idx,s){if(idx<0||s>=st.nsl)return;var n=Math.floor(away*eff/period(idx));if(n>0){offE+=n;offC+=Math.round(n*val(idx)*cozy());}});
- st.eggs+=offE;st.coins+=offC;}
+if(!fresh&&away>60){st.slots.forEach(function(idx,s){if(idx<0||s>=st.nsl)return;var n=Math.floor(away*eff/period(idx));n=Math.min(n,cap()-total());if(n>0){st.inv[idx]+=n;st.cnt[idx]+=n;st.eggs+=n;offE+=n;}});}
 if(st.daily.last!==todayKey){
  var y=new Date();y.setDate(y.getDate()-1);
  st.daily.streak=(st.daily.last===dayKey(y))?st.daily.streak+1:1;st.daily.last=todayKey;
  var gc=100*Math.min(st.daily.streak,7)*Math.max(1,Math.floor(st.level/3)),gg=(st.daily.streak%3===0)?1:0;st.coins+=gc;st.gems+=gg;
- setTimeout(function(){say('Подарок за вход (день '+st.daily.streak+'): 🪙'+fmt(gc)+(gg?' 💎'+gg:'')+(offE>0?'\nПока тебя не было: +'+fmt(offE)+' яиц, +'+fmt(offC)+' монет':''),4200);hud();},900);
-}else if(offE>0){setTimeout(function(){say('Пока тебя не было: +'+fmt(offE)+' яиц, +'+fmt(offC)+' монет',3500);},700);}
+ setTimeout(function(){say('Подарок за вход (день '+st.daily.streak+'): 🪙'+fmt(gc)+(gg?' 💎'+gg:'')+(offE>0?'\nПока тебя не было: +'+fmt(offE)+' яиц на склад':''),4200);hud();},900);
+}else if(offE>0){setTimeout(function(){say('Пока тебя не было: +'+fmt(offE)+' яиц на склад',3500);},700);}
 else if(fresh)setTimeout(function(){say('Касайся птиц: они отзовутся эмоциями. Созревшие яйца собирай касанием',3800);},900);
 if(offE>0&&helperOn('sloth'))setTimeout(function(){jungle.pulse('sloth');},1200);
 
@@ -344,12 +444,12 @@ function updDecor(){for(var id in dec)dec[id].visible=!!st.decor[id];}
 updDecor();
 names.addEventListener('click',function(e){var b=e.target.closest('.pill');if(!b)return;var s=+b.dataset.s;
  if(s>=st.nsl){
-  if(s>st.nsl){say('Сначала открой слот '+(st.nsl+1),2000);return;}
-  if(st.level<SL[s].lvl){say('Слот '+(s+1)+': откроется на уровне '+SL[s].lvl,2000);return;}
-  if(st.coins<SL[s].price){say('Слот '+(s+1)+': нужно 🪙'+fmt(SL[s].price),2000);return;}
+  if(s>st.nsl){play('err');say('Сначала открой слот '+(st.nsl+1),2000);return;}
+  if(st.level<SL[s].lvl){play('err');say('Слот '+(s+1)+': откроется на уровне '+SL[s].lvl,2000);return;}
+  if(st.coins<SL[s].price){play('err');say('Слот '+(s+1)+': нужно 🪙'+fmt(SL[s].price),2000);return;}
   st.coins-=SL[s].price;st.nsl=s+1;
   for(var k=0;k<NB;k++)if(st.own[k]&&st.slots.indexOf(k)<0){assignSlot(s,k);break;}
-  say('Слот '+(s+1)+' открыт!',2000);burst(objs[s].cx*ke,objs[s].cy*ke,EGGZ,30,0xF2A33A,cellW,cellW*0.4);hud();save();return;}
+  play('buy');say('Слот '+(s+1)+' открыт!',2000);burst(objs[s].cx*ke,objs[s].cy*ke,EGGZ,30,0xF2A33A,cellW,cellW*0.4);hud();save();return;}
  pickSlot=s;openPanel('pick');});
 
 /* ---------- действия ---------- */
@@ -362,21 +462,23 @@ function toScreen(p){var v=new T.Vector3(p.x,p.y,p.z).project(cam),rc=cv.getBoun
 var combo=0,lastCollect=0,lastPet=0;
 function collect(s,px,py,auto,mul,tag){
  var o=objs[s],idx=st.slots[s];if(idx<0||s>=st.nsl)return;var b=st.birds[idx];if(!b.ready)return;
+ if(total()>=cap()){if(!auto){say('📦 Амбар полон! Продай яйца на рынке или расширь амбар',2200);pulse(document.getElementById('eggs'));}return;}
  var now=performance.now(),gap=now-lastCollect;
  if(!auto){combo=(gap<1500)?Math.min(combo+1,6):1;lastCollect=now;}
- var Ty=TYPES[BD[idx].type],cm=auto?1:1+0.2*(combo-1),coins=Math.round(val(idx)*cm*incomeMul()*(mul||1)),p=eggPos(o);
- st.eggs++;st.coins+=coins;addXp(Ty.xp);b.mood=Math.min(1,b.mood+0.05);
- checkDay();st.q.p.eggs++;if(BD[idx].type>0)st.q.p.rare++;
+ var Ty=TYPES[BD[idx].type],extra=auto?Math.max(0,(mul||1)-1):0.1*(combo-1),n=1+Math.floor(extra)+(Math.random()<extra%1?1:0),p=eggPos(o);
+ n=Math.max(1,Math.min(n,cap()-total()));
+ st.inv[idx]+=n;st.cnt[idx]+=n;st.eggs+=n;addXp(Ty.xp*n);b.mood=Math.min(1,b.mood+0.05);
+ checkDay();st.q.p.eggs+=n;if(BD[idx].type>0)st.q.p.rare+=n;
  burst(p.x,p.y,p.z,18+BD[idx].type*8,Ty.hex,cellW*1.2,cellW*0.4);burst(p.x,p.y,p.z,10,0xF2A33A,cellW*0.9,cellW*1.1);
- o.cheer={t:0,dur:1.2};
- floatText((tag||'')+'+'+fmt(coins)+(!auto&&combo>1?'  x'+combo:''),px,py,BD[idx].type>0?'#F2A33A':'#F6E7C1',20);
- if(BD[idx].type===3&&Math.random()<0.5){st.gems+=1;floatText('💎 +1',px,py-26,'#9fe9f0',20);}
+ o.cheer={t:0,dur:1.2};play('egg',auto?0.9:1+0.06*(combo-1));
+ floatText((tag||'')+'+'+n+' 🥚'+(!auto&&combo>1?'  x'+combo:''),px,py,BD[idx].type>0?'#F2A33A':'#F6E7C1',20);
+ if(BD[idx].type===3&&Math.random()<0.15){st.gems+=1;floatText('💎 +1',px,py-26,'#9fe9f0',20);}
  b.ready=false;b.prog=0;b.reserved=false;hud();
- pulse(document.getElementById('eggs'));pulse(document.getElementById('coins'));}
+ pulse(document.getElementById('eggs'));}
 function emote(s,px,py){
  var o=objs[s],n=Math.min(st.level,E.length),pool=[],k;
  for(k=0;k<n;k++)if(n===1||k!==o.lastE)pool.push(k);
- var ei=pool[Math.floor(Math.random()*pool.length)];o.lastE=ei;
+ var ei=pool[Math.floor(Math.random()*pool.length)];o.lastE=ei;play('chirp');
  o.emo={id:E[ei].id,t:0,dur:E[ei].id==='sleepy'?2.2:1.6};
  floatText(E[ei].icon+' '+E[ei].name,px,py,'#F6E7C1',17);
  if(E[ei].id==='inlove'){floatText('💗',px-30,py+10,'#fff',22);floatText('💗',px+30,py+5,'#fff',22);}
@@ -386,7 +488,7 @@ function pet(s,px,py){
  var idx=st.slots[s];if(idx<0||s>=st.nsl)return;
  checkDay();st.q.p.pets++;st.birds[idx].mood=Math.min(1,st.birds[idx].mood+0.1);emote(s,px,py);}
 function tap(cx,cy){
- var rc=cv.getBoundingClientRect(),px=cx-rc.left,py=cy-rc.top;
+ play('tap');var rc=cv.getBoundingClientRect(),px=cx-rc.left,py=cy-rc.top;
  ndc.set(px/rc.width*2-1,-(py/rc.height)*2+1);ray.setFromCamera(ndc,cam);
  var proxies=[];objs.forEach(function(o,s){var idx=st.slots[s];if(idx>=0&&s<st.nsl&&st.birds[idx].ready)proxies.push(o.eg.proxy);});
  var hit=ray.intersectObjects(proxies,false);
@@ -400,6 +502,70 @@ var drag=false,lx=0,sx0=0,sy0=0,st0=0,moved=0,t=0,dragYaw=0;
 cv.addEventListener('pointerdown',function(e){drag=true;lx=e.clientX;sx0=e.clientX;sy0=e.clientY;st0=performance.now();moved=0;});
 cv.addEventListener('pointermove',function(e){if(!drag)return;dragYaw+=(e.clientX-lx)*0.01;lx=e.clientX;moved=Math.max(moved,Math.hypot(e.clientX-sx0,e.clientY-sy0));});
 window.addEventListener('pointerup',function(e){if(!drag)return;drag=false;if(moved<10&&performance.now()-st0<400)tap(e.clientX,e.clientY);});
+
+/* ---------- склад, рынок, заказы, кухня, обмен, коллекция ---------- */
+var mtab='stock',MTABS=['stock','orders','swap','book'],MTN=['Склад','Заказы','Обмен','Коллекция'];
+function cap(){return 60+40*st.barn;}
+function total(){var n=0;for(var i=0;i<NB;i++)n+=st.inv[i];return n;}
+function price(i){return val(i)*st.mkt.m[BD[i].type]*incomeMul();}
+function stockValue(){var c=0;for(var i=0;i<NB;i++)c+=price(i)*st.inv[i];return c;}
+function sellBird(i,n){n=Math.min(n,st.inv[i]);if(n<=0)return 0;var c=Math.round(price(i)*n),k=BD[i].type;st.inv[i]-=n;st.coins+=c;st.mkt.m[k]=Math.max(0.5,st.mkt.m[k]-0.004*n);return c;}
+function sellAll(fx){var tot=0;for(var i=0;i<NB;i++)tot+=sellBird(i,st.inv[i]);
+ if(tot>0){play('coin');if(fx){say('💰 Продано на 🪙'+fmt(tot),1800);burst(0,0,3,40,0xF2A33A,cellW*1.4,cellW*0.5);}pulse(document.getElementById('coins'));hud();save();}
+ else if(fx)say('Склад пуст: сначала собери яйца',1400);return tot;}
+function tierCount(k){var c=0;for(var i=0;i<NB;i++)if(BD[i].type===k)c+=st.inv[i];return c;}
+function takeTier(k,n){for(var i=0;i<NB&&n>0;i++)if(BD[i].type===k){var d=Math.min(n,st.inv[i]);st.inv[i]-=d;n-=d;}}
+function barnCost(){return Math.round(400*Math.pow(1.7,st.barn));}
+function mktTick(){for(var k=0;k<4;k++){var m=st.mkt.m[k],nm=m+(1-m)*0.1+R(-0.09,0.09);nm=Math.max(0.6,Math.min(1.6,nm));st.mkt.d[k]=nm>m+0.005?1:nm<m-0.005?-1:0;st.mkt.m[k]=nm;}hud();}
+function genOrder(){var pool=[],i;for(i=0;i<NB;i++)if(st.own[i])pool.push(i);i=pool[Math.floor(Math.random()*pool.length)];
+ var tp=BD[i].type,q=tp===0?Math.round(R(8,20)):tp===1?Math.round(R(5,12)):Math.round(R(3,8));
+ return {bird:i,qty:q,c:Math.round(q*BD[i].val*R(1.6,2.2)*(1+0.05*st.upg[i])),g:(tp>=1&&Math.random()<0.4)?1:0};}
+function ensureOrders(){while(st.orders.length<3)st.orders.push(genOrder());}
+var EXR=[200,60,20,6],MS=[25,250,2500],MR=[1,3,10];
+function gemBuyCost(){return Math.round(1000*Math.pow(Math.max(1,st.level),1.4));}
+function gemSellGet(){return Math.round(0.3*gemBuyCost());}
+function updSell(){var b=document.getElementById('sell');if(!b)return;var show=panelName==='farm'&&total()>0;b.style.display=show?'block':'none';if(show)b.textContent='💰 Продать (🪙'+fmt(stockValue())+')';}
+document.getElementById('sell').addEventListener('click',function(){sellAll(true);});
+function marketAct(a,i){
+ if(a==='mtab'){mtab=MTABS[i];return true;}
+ if(a==='sell1'){sellBird(i,1);return true;}
+ if(a==='sellb'){sellBird(i,st.inv[i]);return true;}
+ if(a==='sellall'){sellAll(false);return true;}
+ if(a==='barn'){var c=barnCost();if(st.coins>=c){st.coins-=c;st.barn++;say('📦 Амбар расширен: '+cap()+' яиц',1800);}return true;}
+ if(a==='order'){var od=st.orders[i];if(st.inv[od.bird]>=od.qty){st.inv[od.bird]-=od.qty;st.coins+=od.c;st.gems+=od.g;addXp(od.qty*TYPES[BD[od.bird].type].xp*2);st.orders[i]=genOrder();say('Заказ выполнен: 🪙'+fmt(od.c)+(od.g?' 💎'+od.g:''),2000);}return true;}
+ if(a==='reroll'){st.orders[i]=genOrder();return true;}
+ if(a==='exg'){if(tierCount(i)>=EXR[i]){takeTier(i,EXR[i]);st.gems+=1;say('💎 +1',1200);}return true;}
+ if(a==='buygem'){var c2=gemBuyCost();if(st.coins>=c2){st.coins-=c2;st.gems+=1;}return true;}
+ if(a==='sellgem'){if(st.gems>=1){st.gems-=1;st.coins+=gemSellGet();}return true;}
+ if(a==='book'){var cl=st.cntCl[i];if(cl<3&&st.cnt[i]>=MS[cl]){st.gems+=MR[cl];st.cntCl[i]++;say('Награда за коллекцию: 💎'+MR[cl],1800);}return true;}
+ return false;}
+function panelMarket(){
+ var h='<h2>Рынок</h2><div class="chips">';
+ MTABS.forEach(function(k,i){h+='<button class="chip'+(mtab===k?' on':'')+'" data-act="mtab" data-i="'+i+'">'+MTN[i]+'</button>';});
+ h+='</div>';var i;
+ if(mtab==='stock'){
+  var tot=total(),bc=barnCost();
+  h+=card('📦','Амбар '+tot+' / '+cap(),'Когда амбар полон, новые яйца собрать нельзя. Продавай яйца или расширяй амбар'+pbar(tot,cap()),btn('+40 за 🪙'+fmt(bc),'barn',0,st.coins>=bc));
+  h+=card('💰','Продать всё','Стоимость склада сейчас: 🪙'+fmt(stockValue()),btn('Продать','sellall',0,tot>0));
+  h+='<h3>Цены рынка</h3>';
+  for(i=0;i<4;i++){var m=st.mkt.m[i],dd=st.mkt.d[i];h+=card(['🥚','🥇','🌈','💎'][i],TYPES[i].name+' яйца','Спрос: ×'+m.toFixed(2)+' '+(dd>0?'<span class="up">▲ растёт</span>':dd<0?'<span class="dn">▼ падает</span>':'держится')+'. Продажа большого числа яиц снижает цену, она потом восстанавливается','');}
+  h+='<h3>Мои яйца</h3>';var any=false;
+  for(i=0;i<NB;i++){if(st.inv[i]<=0)continue;any=true;h+=card(BD[i].ico,'Яйцо: '+BN[i],'В запасе: '+st.inv[i]+' · цена 🪙'+fmt(price(i))+' за штуку',btn('1','sell1',i,true)+btn('Все','sellb',i,true));}
+  if(!any)h+='<div class="note">Склад пуст. Собирай яйца на ферме.</div>';}
+ else if(mtab==='orders'){
+  h+='<div class="note">Покупатели платят больше рынка. Собери нужные яйца и сдай заказ.</div>';
+  st.orders.forEach(function(od,k){var have=st.inv[od.bird];h+=card(BD[od.bird].ico,'Заказ: '+BN[od.bird]+' ×'+od.qty,'Есть '+have+' / '+od.qty+' · награда 🪙'+fmt(od.c)+(od.g?' 💎'+od.g:'')+pbar(have,od.qty),btn('Сдать','order',k,have>=od.qty)+btn('↻','reroll',k,true));});}
+ else if(mtab==='swap'){
+  h+='<div class="note">Яйца и монеты можно менять на 💎.</div><h3>Яйца в 💎</h3>';
+  for(i=0;i<4;i++){var hv=tierCount(i);h+=card(['🥚','🥇','🌈','💎'][i],TYPES[i].name+' яйца → 💎1','Нужно '+EXR[i]+' яиц, есть '+hv,btn('Обменять','exg',i,hv>=EXR[i],'alt'));}
+  h+='<h3>Монеты и 💎</h3>';
+  h+=card('🪙','Купить 💎1','Цена растёт с уровнем',btn('🪙'+fmt(gemBuyCost()),'buygem',0,st.coins>=gemBuyCost(),'alt'));
+  h+=card('💎','Продать 💎1','Курс хуже, чем покупка',btn('🪙'+fmt(gemSellGet()),'sellgem',0,st.gems>=1));}
+ else{
+  h+='<div class="note">Собирай яйца каждой птицы и получай 💎 за 25, 250 и 2500 яиц.</div>';
+  for(i=0;i<NB;i++){var cl=st.cntCl[i],nx=cl<3?MS[cl]:null,ok=nx!==null&&st.cnt[i]>=nx;
+   h+=card(BD[i].ico,BN[i],'Собрано яиц: '+st.cnt[i]+(nx?' · цель '+nx+' (💎'+MR[cl]+')'+pbar(st.cnt[i],nx):' · все награды получены'),ok?btn('💎'+MR[cl],'book',i,true,'alt'):'',!st.own[i]);}}
+ return h;}
 
 /* ---------- панели ---------- */
 function btn(label,act,i,ok,cls){return '<button class="b'+(ok===false?' off':'')+(cls?' '+cls:'')+'" data-act="'+act+'" data-i="'+i+'">'+label+'</button>';}
@@ -457,14 +623,16 @@ function panelFriends(){
  QUESTS.forEach(function(qq,i){var p=st.q.p[qq.id],done=p>=qq.need,m=1+st.level*0.6,rw=(qq.rw.c?'🪙'+fmt(qq.rw.c*m):'')+(qq.rw.g?'💎'+qq.rw.g:'');
   h+=card('📋',qq.txt,Math.min(p,qq.need)+' / '+qq.need+' · награда '+rw+pbar(p,qq.need),st.q.cl[i]?'✔ получено':(done?btn('Забрать','claim',i,true):''));});
  h+='<h3>Серия входов</h3>'+card('📅','Дней подряд: '+st.daily.streak,'Каждый день подарок растёт. Каждый 3-й день дарим 💎','');
+ h+='<h3>Звук</h3>'+card('🎵','Фоновая музыка','Звуки живой природы: ветер, ручей, птицы и мягкая мелодия',btn(st.snd.m?'Вкл':'Выкл','sndm',0,true))+card('🔔','Звуки действий','Касания, яйца, монеты, уровни',btn(st.snd.s?'Вкл':'Выкл','snds',0,true));
  return h;}
 function renderPanel(){
  var sc=panel.scrollTop;
- panel.innerHTML=panelName==='birds'?panelBirds():panelName==='pick'?panelPick():panelName==='shop'?panelShop():panelFriends();
+ panel.innerHTML=panelName==='birds'?panelBirds():panelName==='market'?panelMarket():panelName==='pick'?panelPick():panelName==='shop'?panelShop():panelFriends();
  panel.scrollTop=sc;}
 function fxSlot(s){var o=objs[s];burst(o.cx*ke,o.cy*ke,EGGZ,24,0xF2A33A,cellW*1.1,cellW*0.5);}
 function act(a,i){
  if(a==='back'){openPanel('farm');return;}
+ if(marketAct(a,i)){play(a.indexOf('sell')===0?'coin':(a==='mtab'||a==='reroll')?'':'buy');hud();save();return;}
  if(a==='up'){var c=upCost(i);if(st.coins<c||st.upg[i]>=MAXUP)return;st.coins-=c;st.upg[i]++;var sl3=st.slots.indexOf(i);if(sl3>=0)fxSlot(sl3);say(BN[i]+': улучшение '+st.upg[i]+'/'+MAXUP,1500);}
  else if(a==='buy'){var d=BD[i];if(st.coins<d.price||st.level<d.lvl||st.own[i])return;st.coins-=d.price;st.own[i]=true;st.birds[i].prog=0;st.birds[i].ready=false;
   var fs=-1;for(var s=0;s<st.nsl;s++)if(st.slots[s]<0){fs=s;break;}
@@ -480,16 +648,18 @@ function act(a,i){
  else if(a==='dec'){var dd=DECOR[i];if(st.coins<dd.price||st.decor[dd.id])return;st.coins-=dd.price;st.decor[dd.id]=true;updDecor();say(dd.ico+' '+dd.name+': уют +'+Math.round(dd.bonus*100)+'%',2200);}
  else if(a==='acc'){var ac=ACC[i],ok=ac.cur==='g'?st.gems>=ac.price:st.coins>=ac.price;if(!ok||st.accOwn[ac.id])return;if(ac.cur==='g')st.gems-=ac.price;else st.coins-=ac.price;st.accOwn[ac.id]=true;st.acc=ac.id;applyAcc();say(ac.ico+' '+ac.name+' надет на всех птиц',2000);}
  else if(a==='wear'){var aw=ACC[i];st.acc=(st.acc===aw.id)?'':aw.id;applyAcc();}
+ else if(a==='sndm'){st.snd.m=!st.snd.m;applyAudio();}
+ else if(a==='snds'){st.snd.s=!st.snd.s;applyAudio();}
  else if(a==='real'){say('Покупки за реальные деньги заработают после выхода в Google Play',2400);}
  else if(a==='boost'){
   if(i===0){if(st.gems<3)return;st.gems-=3;st.birds.forEach(function(b,k){if(st.own[k]&&!b.ready)b.prog=0.999;});say('⚡ Яйца созревают!',1500);}
   else{if(st.gems<2)return;st.gems-=2;st.x2=Math.max(Date.now(),st.x2)+600000;say('🚀 Двойной доход на 10 минут',1800);}}
  else if(a==='claim'){var qq=QUESTS[i];if(st.q.p[qq.id]<qq.need||st.q.cl[i])return;st.q.cl[i]=true;var m=1+st.level*0.6;if(qq.rw.c)st.coins+=Math.round(qq.rw.c*m);if(qq.rw.g)st.gems+=qq.rw.g;say('Награда получена!',1400);}
- pulse(document.getElementById('coins'));hud();save();}
+ play('buy');pulse(document.getElementById('coins'));hud();save();}
 function applyAcc(){for(var k in models){models[k].accId=st.acc;setAccessory(models[k],st.acc);}}
 panel.addEventListener('click',function(e){var b=e.target.closest('[data-act]');if(!b||b.classList.contains('off'))return;act(b.dataset.act,+b.dataset.i);});
 function openPanel(name){
- panelName=name;
+ panelName=name;updSell();if(name!=='farm')play('open');
  document.querySelectorAll('#nav button').forEach(function(b){b.classList.toggle('on',b.dataset.t===name);});
  if(name==='farm'){panel.style.display='none';return;}
  panel.style.display='block';panel.scrollTop=0;renderPanel();}
@@ -547,7 +717,7 @@ function animEgg(o,b,idx,s,dt){
  var p=eggPos(o);
  if(!ready&&prog>0.4&&Math.random()<dt*6*prog)spark(p.x+R(-1,1)*Rr,p.y+Rr*R(-1,1),p.z,R(-0.3,0.3)*Rr,Rr*R(0.4,1.2),0,0xffe8a0,R(0.5,0.9));
  if(ready&&Math.random()<dt*20){var a=t*3+R(0,6.28);spark(p.x+Math.cos(a)*Rr*1.7,p.y+Math.sin(a)*Rr*1.2,p.z,-Math.sin(a)*Rr*0.7,Math.cos(a)*Rr*0.7,0,hx,R(0.5,0.9));}
- if(ready&&!o.wasReady){burst(p.x,p.y,p.z,16,Ty.hex,cellW*0.8,cellW*0.3);o.lay={t:0,dur:0.9};}
+ if(ready&&!o.wasReady){burst(p.x,p.y,p.z,16,Ty.hex,cellW*0.8,cellW*0.3);o.lay={t:0,dur:0.9};play('ready');}
  o.wasReady=ready;}
 function animDecor(dt){
  if(st.decor.flies)decFly.forEach(function(f){f.s.position.set(Math.sin(t*f.sx+f.a)*hw*0.9,Math.sin(t*f.sy+f.b)*hh*0.85,1.5);f.s.material.opacity=0.5+0.5*Math.sin(t*3+f.a);});
@@ -558,7 +728,7 @@ function animDecor(dt){
 var helperT={monkey:0,frog:0,sloth:0,snake:0};
 var HOFF={monkey:{dx:0,dy:-2.6},frog:{dx:0,dy:-2.2},sloth:{dx:0,dy:-1.2},snake:{dx:-6,dy:-1.2}};
 function helperRun(h,dt){
- if(!helperOn(h.id))return;
+ if(!helperOn(h.id)||total()>=cap())return;
  helperT[h.id]+=dt;if(helperT[h.id]<h.every||jungle.busy(h.id))return;
  var cand=[];
  objs.forEach(function(o,s){var idx=st.slots[s];if(idx<0||s>=st.nsl)return;var b=st.birds[idx];if(b.ready&&!b.reserved)cand.push(s);});
@@ -567,13 +737,13 @@ function helperRun(h,dt){
  if(h.id==='sloth'){s=cand[0];cand.forEach(function(c){if(val(st.slots[c])>val(st.slots[s]))s=c;});}
  else s=cand[Math.floor(Math.random()*cand.length)];
  var idx=st.slots[s],b=st.birds[idx],ep=eggPos(objs[s]),off=HOFF[h.id];
- b.reserved=true;helperT[h.id]=0;
+ b.reserved=true;helperT[h.id]=0;play('boing');
  jungle.send(h.id,{x:ep.x+off.dx,y:ep.y+off.dy,z:EGGZ+2},function(){
   b.reserved=false;
   if(b.ready&&st.slots[s]===idx&&s<st.nsl){var sp=toScreen(eggPos(objs[s]));collect(s,sp.x,sp.y,true,h.mul,h.ico+' ');}});}
 
 /* ---------- главный цикл ---------- */
-var last=performance.now(),saveT=0;
+var last=performance.now(),saveT=0,mktT=0;
 hud();
 function loop(){
  var now=performance.now(),dt=Math.min((now-last)/1000,0.1);last=now;t+=dt;
@@ -586,6 +756,7 @@ function loop(){
   if(!b.ready){b.prog+=dt/(period(idx)/(1+0.6*b.mood)/spdm);if(b.prog>=1){b.prog=1;b.ready=true;}}
   if(visible){animBird(o,s,dt,b);animEgg(o,b,idx,s,dt);}
   bars[s].style.width=(b.mood*100)+'%';});
+ mktT+=dt;if(mktT>30){mktT=0;mktTick();}
  if(visible)HELPERS.forEach(function(h){helperRun(h,dt);});
  if(visible){updParticles(dt);jungle.update(t);animDecor(dt);renderer.render(scene,cam);}
  saveT+=dt;if(saveT>5){saveT=0;save();}
