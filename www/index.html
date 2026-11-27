@@ -41,6 +41,8 @@ html,body{margin:0;height:100%;background:var(--night);color:var(--egg);font-fam
 #nav{gap:4px;padding:9px 6px}#nav button{font-size:12.5px;padding:11px 1px}
 #sell{display:none;position:absolute;right:10px;bottom:10px;z-index:5;font-family:inherit;font-weight:800;font-size:13px;color:#1b1204;background:linear-gradient(#ffc766,#f2a33a);border:0;border-radius:14px;padding:10px 14px;box-shadow:0 3px 0 #9a6414,0 6px 12px rgba(0,0,0,.45)}
 #sell:active{transform:translateY(2px)}
+#help{position:absolute;top:8px;left:8px;z-index:5;font-size:17px;width:38px;height:38px;border-radius:50%;border:1px solid rgba(246,231,193,.35);background:rgba(10,38,32,.75);color:var(--egg)}
+#goal{display:none;position:absolute;top:8px;left:54px;right:54px;z-index:5;text-align:center;font-size:11.5px;font-weight:700;line-height:1.25;padding:7px 8px;border-radius:12px;background:rgba(10,38,32,.85);border:1px solid rgba(242,163,58,.7);color:#F6E7C1}
 #snd{position:absolute;top:8px;right:8px;z-index:5;font-size:18px;width:38px;height:38px;border-radius:50%;border:1px solid rgba(246,231,193,.35);background:rgba(10,38,32,.75);color:var(--egg)}
 .chips{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0 12px}
 .chip{font-family:inherit;font-weight:700;font-size:12px;color:var(--egg);background:#17413A;border:1px solid rgba(246,231,193,.25);border-radius:999px;padding:7px 11px}
@@ -82,7 +84,7 @@ html,body{margin:0;height:100%;background:var(--night);color:var(--egg);font-fam
     <div class="stat" id="coins">🪙 0</div>
     <div class="stat" id="gems">💎 0</div>
   </div>
-  <div id="stage"><div id="vig"></div><div id="names"></div><button id="sell"></button><button id="snd">🔊</button><div id="panel"></div></div>
+  <div id="stage"><div id="vig"></div><div id="names"></div><button id="sell"></button><button id="snd">🔊</button><button id="help">❓</button><div id="goal"></div><div id="panel"></div></div>
   <div id="nav">
     <button class="on" data-t="farm">Ферма</button>
     <button data-t="birds">Птицы</button>
@@ -104,7 +106,7 @@ function showModal(){
  var t=mq.shift();
  if(!t){mopen=false;modal.style.display='none';return;}
  mopen=true;var parts=t.split('\n');mtitle.textContent=parts[0];mbody.textContent=parts.slice(1).join('\n');mbody.style.display=parts.length>1?'block':'none';modal.style.display='flex';if(typeof lastSfx!=='undefined'&&performance.now()-lastSfx>250)play('modal');}
-function say(t){if(mq.indexOf(t)>=0||mq.length>6)return;mq.push(t);if(!mopen)showModal();}
+function say(t){if(mq.indexOf(t)>=0||mq.length>20)return;mq.push(t);if(!mopen)showModal();}
 document.getElementById('mok').addEventListener('click',showModal);
 function R(a,b){return a+Math.random()*(b-a);}
 function fmt(n){n=Math.round(n);if(n>=1e9)return (n/1e9).toFixed(1)+' млрд';if(n>=1e6)return (n/1e6).toFixed(n>=1e7?0:1)+' млн';if(n>=1e4)return (n/1e3).toFixed(n>=1e5?0:1)+' тыс';return ''+n;}
@@ -275,7 +277,7 @@ var REAL=[
 /* ---------- состояние и сохранение ---------- */
 var SAVE_KEY='birdfarm_v3';
 function freshState(){
- var s={eggs:0,coins:0,xp:0,level:1,gems:0,birds:[],own:[],upg:[],slots:[3,4,-1,-1,-1,-1],nsl:2,decor:{},acc:'',accOwn:{},daily:{last:'',streak:0},q:{day:'',p:{eggs:0,pets:0,rare:0},cl:[false,false,false]},x2:0,spd:0,xp2:0,barn:0,snd:{m:true,s:true},mkt:{m:[1,1,1,1],d:[0,0,0,0]},orders:[],inv:[],cnt:[],cntCl:[]};
+ var s={eggs:0,coins:0,xp:0,level:1,gems:0,birds:[],own:[],upg:[],slots:[3,4,-1,-1,-1,-1],nsl:2,decor:{},acc:'',accOwn:{},daily:{last:'',streak:0},q:{day:'',p:{eggs:0,pets:0,rare:0},cl:[false,false,false]},x2:0,spd:0,xp2:0,barn:0,snd:{m:true,s:true},tut:{intro:false,sold:false,pet:false,up:false},mkt:{m:[1,1,1,1],d:[0,0,0,0]},orders:[],inv:[],cnt:[],cntCl:[]};
  for(var i=0;i<NB;i++){s.birds.push({prog:0,ready:false,mood:0});s.own.push(BD[i].price===0);s.upg.push(0);s.inv.push(0);s.cnt.push(0);s.cntCl.push(0);}
  return s;}
 var st=freshState(),fresh=true;
@@ -336,14 +338,7 @@ function melTick(){
 function birdTick(){if(AC&&!document.hidden&&st.snd.m){var r=Math.random();chirp(r<0.55?'tweet':r<0.85?'trill':'coo',R(-0.8,0.8),0.045,musicBus);}setTimeout(birdTick,R(2200,7000));}
 function startMusic(){
  if(musicOn)return;musicOn=true;
- var ws=AC.createBufferSource();ws.buffer=noiseB;ws.loop=true;var wf=AC.createBiquadFilter();wf.type='bandpass';wf.frequency.value=420;wf.Q.value=0.6;var wg=AC.createGain();wg.gain.value=0.5;
- var l1=AC.createOscillator(),l1g=AC.createGain();l1.frequency.value=0.07;l1g.gain.value=0.25;l1.connect(l1g);l1g.connect(wg.gain);
- var l2=AC.createOscillator(),l2g=AC.createGain();l2.frequency.value=0.05;l2g.gain.value=200;l2.connect(l2g);l2g.connect(wf.frequency);
- ws.connect(wf);wf.connect(wg);wg.connect(musicGain);ws.start();l1.start();l2.start();
- var bs=AC.createBufferSource();bs.buffer=noiseW;bs.loop=true;var bf=AC.createBiquadFilter();bf.type='bandpass';bf.frequency.value=2600;bf.Q.value=0.7;var bg=AC.createGain();bg.gain.value=0.028;
- var l3=AC.createOscillator(),l3g=AC.createGain();l3.frequency.value=5.3;l3g.gain.value=0.012;l3.connect(l3g);l3g.connect(bg.gain);
- bs.connect(bf);bf.connect(bg);bg.connect(musicGain);bs.start();l3.start();
- chordTick();setInterval(chordTick,8000);setTimeout(melTick,2500);setTimeout(birdTick,1500);}
+  chordTick();setInterval(chordTick,8000);setTimeout(melTick,2500);setTimeout(birdTick,1500);}
 var SFXD={
  tap:function(){tone(520,0.07,'sine',0.18,280);},
  ui:function(){tone(740,0.06,'triangle',0.2,520);tone(1480,0.03,'sine',0.05);},
@@ -383,7 +378,7 @@ function hud(){
  document.getElementById('xpfill').style.width=Math.min(100,st.xp/need()*100)+'%';
  document.getElementById('eggs').textContent='🥚 '+total()+'/'+cap()+(total()>=cap()?'!':'');updSell();
  document.getElementById('coins').textContent='🪙 '+fmt(st.coins)+(Date.now()<st.x2?'×2':'');
- document.getElementById('gems').textContent='💎 '+st.gems;applyAudio();
+ document.getElementById('gems').textContent='💎 '+st.gems;applyAudio();updGoal();
  updSlots();syncHelpers();if(panelName!=='farm')renderPanel();}
 function syncHelpers(){HELPERS.forEach(function(h){jungle.setHelper(h.id,st.level>=h.lvl);});}
 function levelUp(){
@@ -406,7 +401,7 @@ if(st.daily.last!==todayKey){
  var gc=100*Math.min(st.daily.streak,7)*Math.max(1,Math.floor(st.level/3)),gg=(st.daily.streak%3===0)?1:0;st.coins+=gc;st.gems+=gg;
  setTimeout(function(){say('Подарок за вход (день '+st.daily.streak+'): 🪙'+fmt(gc)+(gg?' 💎'+gg:'')+(offE>0?'\nПока тебя не было: +'+fmt(offE)+' яиц на склад':''),4200);hud();},900);
 }else if(offE>0){setTimeout(function(){say('Пока тебя не было: +'+fmt(offE)+' яиц на склад',3500);},700);}
-else if(fresh)setTimeout(function(){say('Касайся птиц: они отзовутся эмоциями. Созревшие яйца собирай касанием',3800);},900);
+if(!st.tut.intro)setTimeout(showIntro,1500);
 if(offE>0&&helperOn('sloth'))setTimeout(function(){jungle.pulse('sloth');},1200);
 
 /* ---------- слоты фермы и модели птиц ---------- */
@@ -486,7 +481,7 @@ function emote(s,px,py){
 function pet(s,px,py){
  var now=performance.now();if(now-lastPet<250)return;lastPet=now;
  var idx=st.slots[s];if(idx<0||s>=st.nsl)return;
- checkDay();st.q.p.pets++;st.birds[idx].mood=Math.min(1,st.birds[idx].mood+0.1);emote(s,px,py);}
+ checkDay();st.q.p.pets++;st.tut.pet=true;st.birds[idx].mood=Math.min(1,st.birds[idx].mood+0.1);emote(s,px,py);}
 function tap(cx,cy){
  play('tap');var rc=cv.getBoundingClientRect(),px=cx-rc.left,py=cy-rc.top;
  ndc.set(px/rc.width*2-1,-(py/rc.height)*2+1);ray.setFromCamera(ndc,cam);
@@ -511,7 +506,7 @@ function price(i){return val(i)*st.mkt.m[BD[i].type]*incomeMul();}
 function stockValue(){var c=0;for(var i=0;i<NB;i++)c+=price(i)*st.inv[i];return c;}
 function sellBird(i,n){n=Math.min(n,st.inv[i]);if(n<=0)return 0;var c=Math.round(price(i)*n),k=BD[i].type;st.inv[i]-=n;st.coins+=c;st.mkt.m[k]=Math.max(0.5,st.mkt.m[k]-0.004*n);return c;}
 function sellAll(fx){var tot=0;for(var i=0;i<NB;i++)tot+=sellBird(i,st.inv[i]);
- if(tot>0){play('coin');if(fx){say('💰 Продано на 🪙'+fmt(tot),1800);burst(0,0,3,40,0xF2A33A,cellW*1.4,cellW*0.5);}pulse(document.getElementById('coins'));hud();save();}
+ if(tot>0){play('coin');st.tut.sold=true;if(fx){say('💰 Продано на 🪙'+fmt(tot),1800);burst(0,0,3,40,0xF2A33A,cellW*1.4,cellW*0.5);}pulse(document.getElementById('coins'));hud();save();}
  else if(fx)say('Склад пуст: сначала собери яйца',1400);return tot;}
 function tierCount(k){var c=0;for(var i=0;i<NB;i++)if(BD[i].type===k)c+=st.inv[i];return c;}
 function takeTier(k,n){for(var i=0;i<NB&&n>0;i++)if(BD[i].type===k){var d=Math.min(n,st.inv[i]);st.inv[i]-=d;n-=d;}}
@@ -566,6 +561,52 @@ function panelMarket(){
   for(i=0;i<NB;i++){var cl=st.cntCl[i],nx=cl<3?MS[cl]:null,ok=nx!==null&&st.cnt[i]>=nx;
    h+=card(BD[i].ico,BN[i],'Собрано яиц: '+st.cnt[i]+(nx?' · цель '+nx+' (💎'+MR[cl]+')'+pbar(st.cnt[i],nx):' · все награды получены'),ok?btn('💎'+MR[cl],'book',i,true,'alt'):'',!st.own[i]);}}
  return h;}
+
+/* ---------- обучение, цель и справка ---------- */
+var INTRO=[
+ 'Добро пожаловать на птичью ферму! 🦜\nТы хозяин фермы тропических птиц. Птицы несут яйца, ты их продаёшь и развиваешь ферму.',
+ 'Как собирать яйца 🥚\nНад каждой птицей яйцо в гнезде. Оно растёт и светится. Когда готово, оно подпрыгивает: коснись его, чтобы забрать.',
+ 'Склад и продажа 💰\nЯйца попадают на склад. Нажми «💰 Продать» внизу фермы, чтобы получить монеты. Если склад полон, яйца собирать нельзя.',
+ 'Зачем нужны монеты 🪙\nНа них улучшаешь птиц (яйца растут быстрее и стоят дороже), покупаешь новых птиц, открываешь слоты и расширяешь склад. Всё это в разделах «Птицы» и «Рынок».',
+ 'Уровни ⭐\nЗа каждое яйцо ты получаешь опыт. Новый уровень даёт награду и открывает новых птиц, помощников и эмоции.',
+ 'Птицы живые 💖\nГладь птиц касанием: они отвечают эмоциями и несутся быстрее. Шкала под именем показывает настроение.',
+ 'Подсказки всегда рядом ❓\nКнопка ❓ вверху экрана открывает справку. А надпись «🎯» вверху всегда подсказывает следующую цель.'];
+function showIntro(){INTRO.forEach(function(t){say(t);});st.tut.intro=true;save();}
+function cheapestUp(){var m=Infinity,i;for(i=0;i<NB;i++)if(st.own[i]&&st.upg[i]<MAXUP)m=Math.min(m,upCost(i));return m;}
+function goalInfo(){
+ var i,L=st.level;
+ if(st.eggs===0)return {t:'Коснись светящегося яйца над птицей, чтобы забрать его',go:'farm'};
+ if(total()>0&&!st.tut.sold)return {t:'Продай яйца: нажми «💰 Продать» внизу',go:'farm'};
+ if(!st.tut.up&&st.coins>=cheapestUp())return {t:'Улучши птицу за монеты: открой «Птицы»',go:'birds'};
+ if(!st.tut.pet)return {t:'Погладь птицу касанием: она ответит эмоцией и будет нестись быстрее',go:'farm'};
+ for(i=0;i<st.orders.length;i++)if(st.inv[st.orders[i].bird]>=st.orders[i].qty)return {t:'Заказ готов! Сдай его в «Рынке»',go:'market'};
+ for(i=0;i<NB;i++)if(!st.own[i]&&st.level>=BD[i].lvl&&st.coins>=BD[i].price)return {t:'Можно купить птицу: '+BN[i]+' (раздел «Птицы»)',go:'birds'};
+ if(st.nsl<6&&L>=SL[st.nsl].lvl&&st.coins>=SL[st.nsl].price)return {t:'Открой новый слот: нажми табличку закрытого слота',go:'farm'};
+ if(total()>=cap()*0.9)return {t:'Склад почти полон: продай яйца',go:'farm'};
+ if(st.coins>=cheapestUp())return {t:'Хватает монет на улучшение птицы: открой «Птицы»',go:'birds'};
+ return {t:'До уровня '+(L+1)+' осталось '+fmt(Math.max(0,need()-st.xp))+' опыта',go:''};}
+function updGoal(){var g=document.getElementById('goal');if(!g)return;
+ if(panelName!=='farm'){g.style.display='none';return;}
+ var o=goalInfo();g.style.display='block';g.textContent='🎯 '+o.t;g.dataset.go=o.go||'';}
+document.getElementById('goal').addEventListener('click',function(){var go=this.dataset.go;if(go&&go!=='farm')openPanel(go);});
+document.getElementById('help').addEventListener('click',function(){openPanel('help');});
+var HELP=[
+ ['🦜','Что это за игра','Ты хозяин фермы тропических птиц. Птицы несут яйца, яйца продаёшь за монеты, на монеты улучшаешь птиц и покупаешь новых. Чем выше уровень, тем больше возможностей.'],
+ ['🥚','Как собирать яйца','Над каждой птицей яйцо в гнезде. Оно растёт, светится и подпрыгивает, когда готово. Коснись его, и оно попадёт на склад. Если собирать быстро подряд, комбо иногда даёт лишнее яйцо.'],
+ ['📦','Склад и продажа','В шапке 🥚 показывает, сколько яиц на складе и сколько места всего. Кнопка «💰 Продать» на ферме продаёт всё сразу. В «Рынке» можно продавать по штукам. Если склад полон, яйца собирать нельзя: расширь амбар в «Рынок → Склад».'],
+ ['📈','Рынок и цены','Цена яйца зависит от спроса на его тип: ▲ растёт, ▼ падает. Не продавай всё, когда цена низкая. Большая продажа сама снижает цену на время.'],
+ ['📋','Заказы покупателей','В «Рынок → Заказы» покупатели просят определённые яйца и платят больше рынка, иногда дают 💎.'],
+ ['🪙','Зачем монеты','Улучшение птиц (яйца быстрее и дороже), новые птицы, слоты фермы, расширение склада, корм, декор и аксессуары.'],
+ ['⭐','Опыт и уровни','За каждое яйцо ты получаешь опыт, редкие яйца дают больше. Новый уровень даёт монеты, иногда 💎, новую эмоцию птиц и открывает птиц, слоты и помощников.'],
+ ['💖','Настроение птиц','Гладь птиц касанием: шкала под именем растёт, птица отвечает эмоцией и несётся до 60% быстрее. Настроение медленно падает. Корм из магазина поднимает его сразу.'],
+ ['🪹','Слоты и птицы','На ферме 6 мест (слотов). Нажми табличку птицы, чтобы заменить её, или табличку пустого слота, чтобы выбрать птицу. У каждой птицы свой тип яйца: обычное, золотое, радужное или кристальное.'],
+ ['🐒','Помощники','С уровнями открываются обезьяна, лягушка, ленивец и змея. Они сами прыгают или ползут за готовыми яйцами и приносят лишние яйца на склад.'],
+ ['🏮','Декор и уют','Декор из магазина украшает ферму и увеличивает цену яиц. Аксессуары надеваются на всех птиц.'],
+ ['💎','Золотые яйца 💎','Редкая валюта. Даётся за уровни, задания, заказы, коллекцию и кристальные яйца. Тратится на мгновенный рост яиц, двойной доход и редкие аксессуары. В «Рынок → Обмен» их можно менять на монеты и обратно.'],
+ ['💡','Советы','Сначала улучшай дешёвых птиц. Заходи каждый день за подарком. Выполняй задания дня в «Друзьях». Следи за складом и ценами на рынке.']];
+function panelHelp(){var h='<h2>Как играть</h2><div class="note">Здесь собрано всё о игре. Следующая цель всегда написана вверху фермы.</div>';
+ HELP.forEach(function(x){h+=card(x[0],x[1],x[2],'');});
+ h+='<div style="margin:12px 0">'+btn('Показать обучение ещё раз','intro',0,true)+'</div>';return h;}
 
 /* ---------- панели ---------- */
 function btn(label,act,i,ok,cls){return '<button class="b'+(ok===false?' off':'')+(cls?' '+cls:'')+'" data-act="'+act+'" data-i="'+i+'">'+label+'</button>';}
@@ -627,13 +668,13 @@ function panelFriends(){
  return h;}
 function renderPanel(){
  var sc=panel.scrollTop;
- panel.innerHTML=panelName==='birds'?panelBirds():panelName==='market'?panelMarket():panelName==='pick'?panelPick():panelName==='shop'?panelShop():panelFriends();
+ panel.innerHTML=panelName==='birds'?panelBirds():panelName==='market'?panelMarket():panelName==='help'?panelHelp():panelName==='pick'?panelPick():panelName==='shop'?panelShop():panelFriends();
  panel.scrollTop=sc;}
 function fxSlot(s){var o=objs[s];burst(o.cx*ke,o.cy*ke,EGGZ,24,0xF2A33A,cellW*1.1,cellW*0.5);}
 function act(a,i){
  if(a==='back'){openPanel('farm');return;}
  if(marketAct(a,i)){play(a.indexOf('sell')===0?'coin':(a==='mtab'||a==='reroll')?'':'buy');hud();save();return;}
- if(a==='up'){var c=upCost(i);if(st.coins<c||st.upg[i]>=MAXUP)return;st.coins-=c;st.upg[i]++;var sl3=st.slots.indexOf(i);if(sl3>=0)fxSlot(sl3);say(BN[i]+': улучшение '+st.upg[i]+'/'+MAXUP,1500);}
+ if(a==='up'){var c=upCost(i);if(st.coins<c||st.upg[i]>=MAXUP)return;st.coins-=c;st.upg[i]++;st.tut.up=true;var sl3=st.slots.indexOf(i);if(sl3>=0)fxSlot(sl3);say(BN[i]+': улучшение '+st.upg[i]+'/'+MAXUP,1500);}
  else if(a==='buy'){var d=BD[i];if(st.coins<d.price||st.level<d.lvl||st.own[i])return;st.coins-=d.price;st.own[i]=true;st.birds[i].prog=0;st.birds[i].ready=false;
   var fs=-1;for(var s=0;s<st.nsl;s++)if(st.slots[s]<0){fs=s;break;}
   if(fs>=0){assignSlot(fs,i);fxSlot(fs);say('Новая птица: '+BN[i]+'! Поставлена в слот '+(fs+1),2400);}else say('Новая птица: '+BN[i]+'! Поставь её на ферму через слот',2400);}
@@ -650,6 +691,7 @@ function act(a,i){
  else if(a==='wear'){var aw=ACC[i];st.acc=(st.acc===aw.id)?'':aw.id;applyAcc();}
  else if(a==='sndm'){st.snd.m=!st.snd.m;applyAudio();}
  else if(a==='snds'){st.snd.s=!st.snd.s;applyAudio();}
+ else if(a==='intro'){openPanel('farm');showIntro();}
  else if(a==='real'){say('Покупки за реальные деньги заработают после выхода в Google Play',2400);}
  else if(a==='boost'){
   if(i===0){if(st.gems<3)return;st.gems-=3;st.birds.forEach(function(b,k){if(st.own[k]&&!b.ready)b.prog=0.999;});say('⚡ Яйца созревают!',1500);}
@@ -659,7 +701,7 @@ function act(a,i){
 function applyAcc(){for(var k in models){models[k].accId=st.acc;setAccessory(models[k],st.acc);}}
 panel.addEventListener('click',function(e){var b=e.target.closest('[data-act]');if(!b||b.classList.contains('off'))return;act(b.dataset.act,+b.dataset.i);});
 function openPanel(name){
- panelName=name;updSell();if(name!=='farm')play('open');
+ panelName=name;updSell();updGoal();if(name!=='farm')play('open');
  document.querySelectorAll('#nav button').forEach(function(b){b.classList.toggle('on',b.dataset.t===name);});
  if(name==='farm'){panel.style.display='none';return;}
  panel.style.display='block';panel.scrollTop=0;renderPanel();}
