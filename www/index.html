@@ -38,12 +38,14 @@ html,body{margin:0;height:100%;background:var(--night);color:var(--egg);font-fam
 #nav button{flex:1;padding:11px 2px;font-size:13.5px;font-weight:700;font-family:inherit;border:0;border-radius:13px;background:var(--moss);color:var(--egg)}
 #nav button.on{background:var(--amber);color:var(--night)}
 #nav button:active{transform:scale(.97)}
+#bar{display:flex;align-items:center;gap:6px;padding:6px 8px;background:#10312a;border-top:1px solid rgba(246,231,193,.12)}
+#help,#snd{flex:none;width:34px;height:34px;border-radius:50%;font-size:16px;border:1px solid rgba(246,231,193,.35);background:rgba(10,38,32,.75);color:var(--egg);padding:0}
+#goal{flex:1;min-width:0;font-size:11px;font-weight:700;line-height:1.25;color:#F6E7C1;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+#sell{flex:none;font-family:inherit;font-weight:800;font-size:12px;line-height:1.15;color:#1b1204;background:linear-gradient(#ffc766,#f2a33a);border:0;border-radius:12px;padding:6px 10px;box-shadow:0 3px 0 #9a6414;min-width:84px}
+#sell small{font-size:11px;font-weight:700}
+#sell:active{transform:translateY(2px);box-shadow:0 1px 0 #9a6414}
+#eggs{cursor:pointer;border:1px solid rgba(246,231,193,.3)}
 #nav{gap:4px;padding:9px 6px}#nav button{font-size:12.5px;padding:11px 1px}
-#sell{display:none;position:absolute;right:10px;bottom:10px;z-index:5;font-family:inherit;font-weight:800;font-size:13px;color:#1b1204;background:linear-gradient(#ffc766,#f2a33a);border:0;border-radius:14px;padding:10px 14px;box-shadow:0 3px 0 #9a6414,0 6px 12px rgba(0,0,0,.45)}
-#sell:active{transform:translateY(2px)}
-#help{position:absolute;top:8px;left:8px;z-index:5;font-size:17px;width:38px;height:38px;border-radius:50%;border:1px solid rgba(246,231,193,.35);background:rgba(10,38,32,.75);color:var(--egg)}
-#goal{display:none;position:absolute;top:8px;left:54px;right:54px;z-index:5;text-align:center;font-size:11.5px;font-weight:700;line-height:1.25;padding:7px 8px;border-radius:12px;background:rgba(10,38,32,.85);border:1px solid rgba(242,163,58,.7);color:#F6E7C1}
-#snd{position:absolute;top:8px;right:8px;z-index:5;font-size:18px;width:38px;height:38px;border-radius:50%;border:1px solid rgba(246,231,193,.35);background:rgba(10,38,32,.75);color:var(--egg)}
 .chips{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0 12px}
 .chip{font-family:inherit;font-weight:700;font-size:12px;color:var(--egg);background:#17413A;border:1px solid rgba(246,231,193,.25);border-radius:999px;padding:7px 11px}
 .chip.on{background:var(--amber);color:#1b1204;border-color:var(--amber)}
@@ -84,7 +86,8 @@ html,body{margin:0;height:100%;background:var(--night);color:var(--egg);font-fam
     <div class="stat" id="coins">🪙 0</div>
     <div class="stat" id="gems">💎 0</div>
   </div>
-  <div id="stage"><div id="vig"></div><div id="names"></div><button id="sell"></button><button id="snd">🔊</button><button id="help">❓</button><div id="goal"></div><div id="panel"></div></div>
+  <div id="stage"><div id="vig"></div><div id="names"></div><div id="panel"></div></div>
+  <div id="bar"><button id="help">❓</button><button id="snd">🔊</button><div id="goal"></div><button id="sell"></button></div>
   <div id="nav">
     <button class="on" data-t="farm">Ферма</button>
     <button data-t="birds">Птицы</button>
@@ -206,6 +209,12 @@ function rankName(L){var r='';RANKS.forEach(function(x){if(L>=x[0])r=x[1];});ret
 /* ---------- яйца ---------- */
 var eggTex=(function(){var c=document.createElement('canvas');c.width=c.height=128;var g=c.getContext('2d'),i;g.fillStyle='#fff7e6';g.fillRect(0,0,128,128);
  for(i=0;i<90;i++){g.fillStyle='rgba(120,80,40,'+(0.15+Math.random()*0.35)+')';g.beginPath();g.arc(Math.random()*128,Math.random()*128,1+Math.random()*3,0,7);g.fill();}return new T.CanvasTexture(c);})();
+var eggTexes=[eggTex,
+ (function(){var c=document.createElement('canvas');c.width=c.height=128;var g=c.getContext('2d'),gr=g.createLinearGradient(0,0,0,128);gr.addColorStop(0,'#ffffff');gr.addColorStop(1,'#ddd2c0');g.fillStyle=gr;g.fillRect(0,0,128,128);
+  g.fillStyle='rgba(255,255,255,0.7)';g.beginPath();g.ellipse(40,34,16,10,-0.5,0,7);g.fill();return new T.CanvasTexture(c);})(),
+ (function(){var c=document.createElement('canvas');c.width=c.height=128;var g=c.getContext('2d'),i;g.fillStyle='#fff6e6';g.fillRect(0,0,128,128);
+  for(i=0;i<6;i++){g.fillStyle='rgba(90,60,30,'+(0.22+(i%2)*0.12)+')';g.fillRect(0,12+i*20,128,6);}return new T.CanvasTexture(c);})()];
+eggTexes.forEach(function(t){t.wrapS=T.RepeatWrapping;});
 var eggGeo=new T.SphereGeometry(1,28,20),nestGeo=new T.TorusGeometry(1.3,0.3,8,22);
 function makeEgg(Rr){
  var root=new T.Group(),nest=new T.Mesh(nestGeo,new T.MeshStandardMaterial({color:0x6b4a2b,roughness:0.9}));nest.rotation.x=Math.PI/2;nest.scale.set(Rr,Rr,Rr*0.7);root.add(nest);
@@ -238,6 +247,9 @@ var BD=[
  /*16 голубь*/{lvl:20,price:110000,type:1,val:330,per:27,base:17000,ico:'🕊️'},
  /*17 феникс*/{lvl:52,price:80000000,type:3,val:160000,per:50,base:15000000,ico:'🔥'}];
 var NB=BD.length,MAXUP=20;
+/* облик яйца каждой птицы: цвет скорлупы и размер */
+var EGGC=[0xe8573a,0x6a5acd,0xfff1d6,0xb7f2d8,0xa9e07a,0xffb3cf,0x6fd6e8,0xff8aa0,0xffe27a,0x6aa8ff,0xf2a33a,0x4fd08a,0xff7a3c,0x3fb6c9,0xc9a27a,0xb9a2e8,0xe6e6f0,0xff4a2a];
+var ESZ=[1.05,1.1,0.95,0.6,0.85,1.25,0.8,0.7,0.75,0.82,1.15,1.0,1.1,1.3,1.0,1.2,0.9,1.35];
 var TYPES=[{name:'Обычное',xp:1,tint:0xffffff,glow:0xffe8a0,hex:0xffe8a0,col:'#7bd88f'},
  {name:'Золотое',xp:4,tint:0xffd45a,glow:0xffcc33,hex:0xffcc33,col:'#4aa3ff'},
  {name:'Радужное',xp:14,tint:0xffffff,glow:0xff66cc,hex:0xff66cc,col:'#b06cff'},
@@ -519,8 +531,9 @@ function ensureOrders(){while(st.orders.length<3)st.orders.push(genOrder());}
 var EXR=[200,60,20,6],MS=[25,250,2500],MR=[1,3,10];
 function gemBuyCost(){return Math.round(1000*Math.pow(Math.max(1,st.level),1.4));}
 function gemSellGet(){return Math.round(0.3*gemBuyCost());}
-function updSell(){var b=document.getElementById('sell');if(!b)return;var show=panelName==='farm'&&total()>0;b.style.display=show?'block':'none';if(show)b.textContent='💰 Продать (🪙'+fmt(stockValue())+')';}
-document.getElementById('sell').addEventListener('click',function(){sellAll(true);});
+function updSell(){var b=document.getElementById('sell');if(!b)return;b.innerHTML=total()>0?'💰 Продать<br><small>🪙'+fmt(stockValue())+'</small>':'💰 Рынок';}
+document.getElementById('sell').addEventListener('click',function(){if(total()>0)sellAll(true);else{mtab='stock';openPanel('market');}});
+document.getElementById('eggs').addEventListener('click',function(){mtab='stock';openPanel('market');});
 function marketAct(a,i){
  if(a==='mtab'){mtab=MTABS[i];return true;}
  if(a==='sell1'){sellBird(i,1);return true;}
@@ -586,7 +599,6 @@ function goalInfo(){
  if(st.coins>=cheapestUp())return {t:'Хватает монет на улучшение птицы: открой «Птицы»',go:'birds'};
  return {t:'До уровня '+(L+1)+' осталось '+fmt(Math.max(0,need()-st.xp))+' опыта',go:''};}
 function updGoal(){var g=document.getElementById('goal');if(!g)return;
- if(panelName!=='farm'){g.style.display='none';return;}
  var o=goalInfo();g.style.display='block';g.textContent='🎯 '+o.t;g.dataset.go=o.go||'';}
 document.getElementById('goal').addEventListener('click',function(){var go=this.dataset.go;if(go&&go!=='farm')openPanel(go);});
 document.getElementById('help').addEventListener('click',function(){openPanel('help');});
@@ -743,7 +755,7 @@ function animBird(o,s,dt,b){
  A.B.position.y=o.by+(A.hover?Math.sin(t*3+s)*cellW*0.015:0)+hop*cellW*0.07;}
 function backOut(x){var c=1.70158;return 1+(c+1)*Math.pow(x-1,3)+c*Math.pow(x-1,2);}
 function animEgg(o,b,idx,s,dt){
- var e=o.eg,Rr=e.R,ready=b.ready,prog=b.prog,k=ready?1:0.22+0.78*prog,Ty=TYPES[BD[idx].type];
+ var e=o.eg,Rr=e.R,ready=b.ready,prog=b.prog,k=(ready?1:0.22+0.78*prog)*ESZ[idx],Ty=TYPES[BD[idx].type];
  if(!ready&&prog<0.08)k*=Math.max(0.05,backOut(prog/0.08));
  k*=1+0.02*Math.sin(t*3+s);if(ready)k*=1+0.06*Math.sin(t*7+s);
  e.egg.scale.set(Rr*k,Rr*k*1.3,Rr*k);
@@ -753,8 +765,10 @@ function animEgg(o,b,idx,s,dt){
  e.halo.position.y=e.egg.position.y;e.halo.scale.setScalar(Rr*(3.5+2*k));
  e.halo.material.opacity=ready?0.55+0.2*Math.sin(t*5+s):0.05+0.35*prog*prog;
  var hx=Ty.hex;
- if(BD[idx].type===2){var rc=new T.Color().setHSL((t*0.6)%1,0.55,0.8);e.egg.material.color.copy(rc);e.halo.material.color.setHSL((t*0.6)%1,0.9,0.6);hx=e.halo.material.color.getHex();}
- else{e.egg.material.color.setHex(Ty.tint);e.halo.material.color.setHex(Ty.glow);}
+ e.egg.material.color.setHex(EGGC[idx]);
+ if(o.eggIdx!==idx){o.eggIdx=idx;e.egg.material.map=eggTexes[idx%3];e.egg.material.needsUpdate=true;}
+ if(BD[idx].type===2){e.halo.material.color.setHSL((t*0.6)%1,0.9,0.6);hx=e.halo.material.color.getHex();}
+ else e.halo.material.color.setHex(Ty.glow);
  e.egg.material.emissive.setHex(ready?(BD[idx].type===1?0x3a2a00:BD[idx].type===3?0x0a3a40:0x1a1200):0x000000);
  var p=eggPos(o);
  if(!ready&&prog>0.4&&Math.random()<dt*6*prog)spark(p.x+R(-1,1)*Rr,p.y+Rr*R(-1,1),p.z,R(-0.3,0.3)*Rr,Rr*R(0.4,1.2),0,0xffe8a0,R(0.5,0.9));
